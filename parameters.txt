@@ -1,0 +1,37 @@
+### Choose model
+model_name=GNNNaive
+model_block=GNNNaiveBlock_Cheb
+#use_base_model
+
+### Epoch parameter
+learning_rate=0.0005
+epoch_number=10
+batch_size=3
+
+### Data
+attribute_weight=0.5663967728614807 -0.21957363188266754 0.009314547292888165
+label_from_ellipro_pi
+use_relaxed
+#not_normalize_data
+#edge_threshold=4.5
+
+feature_version=v1.0.1
+use_struct
+
+### Output
+#save_statedict
+train_all=with_validation
+#train_all=yes
+plot_network
+
+### Graph model
+num_layers=2
+hidden_channel=16 32
+drop_out=0.2 0.1
+#gradient_attribute
+#gradient_attribute_with_bias
+filter_size=6
+attention_head=4
+#dropout_edge_p=0.5
+gat_concat
+#block_norm=batchnorm

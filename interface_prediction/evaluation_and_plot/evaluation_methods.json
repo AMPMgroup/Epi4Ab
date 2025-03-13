@@ -1,0 +1,5 @@
+{
+    "graph_method": ["Recall","Precision","f1","Accuracy","ROC AUC","Average Precision"],
+    "object_method": ["Recall","Precision","f1", "Average Precision"],
+    "sequence_method": ["Global Dist. Score", "Local Dist. Score", "Cosine Similarity"]
+}
