@@ -1,4 +1,4 @@
-**AMPM Group - Interface prediction**
+**Epi4Ab: Prediction of conformational epitopes for specific antibody VH/VL families and CDR H3/L1 sequences**
 ==============
 Last updating: `2025-03-13`
 
@@ -40,7 +40,7 @@ DIRECTORY_UNSEEN_OUTPUT="/path/to/run_model_output/"
 DIRECTORY_PDB_LIST="/path/to/train_pdb_file/"
 DIRECTORY_UNSEEN_PDB_LIST="/path/to/test_pdb_file/"
 ```
-## Training model
+## TRAINING model
 ### Run script
 For the explanation and usage of any argument, please refer to `--help` or `interface_prediction/arguments.py`.
 
@@ -64,7 +64,7 @@ Output of training include
     - `log.json`: Dictionary type log.
 - Model: `model.pt` only saved when running with `--train_all` argument.
 
-## Run model
+## PREDICTION
 
 ### Run script
 Similar to training, test model could be run by modifying these arguments in `run_model.sh`:
