@@ -18,11 +18,6 @@ def extract_feature(featureData,
     if 'charge' in featureData.columns:
         featureData = featureData.astype({'charge' : int})
 
-    if logging.ab_feature_input:
-        featureData[logging.ab_continuous_columns_change] = logging.ab_continuous_columns_value
-        featureData[logging.ab_onehot_vh_columns] = logging.ab_onehot_vh_columns_value
-        featureData[logging.ab_onehot_vl_columns] = logging.ab_onehot_vl_columns_value
-
     if logging.softmax_data | logging.not_normalize_data:
         feature_data = featureData[logging.continuous_columns]
     else:

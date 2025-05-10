@@ -10,7 +10,8 @@ from .attribute import CalculateAttribute
 from .aa_tokenizer import AATokenizer
 from .extraction import extract_feature, filter_neighbor
 
-def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_tokenize=None, pretrained_model=None):
+def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_tokenize=None, pretrained_model=None, 
+               ab_pretrained_model=None):
     '''
     This function gather information of structure and sequence data:
     - feature data: structure and/or sequence data
@@ -24,6 +25,7 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
     error_list = []
     new_pdb_list = []
 
+    # logging.feature_file = 'pdb_profile.parquet'
     logging.feature_file = 'node_feature.parquet'
     logging.edge_attribute_file = 'edge_attribute_dist.parquet'
     logging.edge_attribute_charge_file = 'edge_attribute_charge.parquet'
@@ -44,17 +46,21 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
         softmax_class = torch.nn.Softmax(dim=1)
 
     if logging.use_token:
-        aa_tokenizer = AATokenizer(featureNameDict, logging.amino_acid_list, logging.ab_onehot_vh_columns, logging.ab_onehot_vl_columns,
-                                   logging.para_token_list, logging.para_two_sequences)
+        aa_tokenizer = AATokenizer(featureNameDict, logging.ab_onehot_vh_columns, logging.ab_onehot_vl_columns)
 
     for pdbId in tqdm(pdbList, desc=f'Processing {batchType} data', unit='pdbId'):
         # try:
         if logging.use_relaxed & (pdbId[-3:] == '_re'): # Get data based on relaxed or bound
-            feature_folder = os.path.join(logging.directory_data, pdbId)
-            pdb_folder = os.path.join(logging.directory_data, pdbId[:-3])
+        #     pdb_folder = os.path.join(logging.directory_data, pdbId[:-3])
+            label_folder = os.path.join(logging.directory_data, pdbId[:-3])
         else:
-            feature_folder = pdb_folder = os.path.join(logging.directory_data, pdbId)
-        featureData = pd.read_parquet(os.path.join(feature_folder, logging.feature_file))
+        #     pdb_folder = os.path.join(logging.directory_data, pdbId)
+            label_folder = os.path.join(logging.directory_data, pdbId)
+        feature_folder = os.path.join(logging.directory_processed_data, pdbId)
+        # featureData = pd.read_parquet(os.path.join(feature_folder, logging.feature_file))
+        pdb_folder = os.path.join(logging.directory_data, pdbId)
+        featureData = pd.read_parquet(os.path.join(pdb_folder, logging.feature_file))
+        # featureData = featureData[featureData.chainType == 'antigen']
         assert not featureData.empty, f'Feature of pdb {pdbId} is empty.'
         edgeIndex = pd.read_parquet(os.path.join(pdb_folder, logging.edge_index_file))
         assert not edgeIndex.empty, f'Edge index of pdb {pdbId} is empty.'
@@ -62,7 +68,7 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
         assert not edgeAttribute.empty, f'Edge attribute distance of pdb {pdbId} is empty.'
         edgeCharge = pd.read_parquet(os.path.join(pdb_folder, logging.edge_attribute_charge_file))
         assert not edgeCharge.empty, f'Edge attribute charge of pdb {pdbId} is empty.'
-        nodeLabel = pd.read_parquet(os.path.join(pdb_folder, logging.node_label_file)).astype(int)
+        nodeLabel = pd.read_parquet(os.path.join(label_folder, logging.node_label_file)).astype(int)
         assert ptypes.is_float_dtype(edgeAttribute['dist']), f'Attribute of pdb {pdbId} is not float.'
         edgeAttribute = edgeAttribute.abs()
 
@@ -90,24 +96,37 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
         else:
             x_seq = torch.tensor(0)
 
+        if logging.ab_feature_input:
+            featureData[logging.ab_continuous_columns_change] = logging.ab_continuous_columns_value
+            featureData[logging.ab_onehot_vh_columns] = logging.ab_onehot_vh_columns_value
+            featureData[logging.ab_onehot_vl_columns] = logging.ab_onehot_vl_columns_value
+
         if logging.use_token:
-            res_short_list = featureData.resShort.to_list()
+            # res_short_list = featureData.resShort.to_list()
             vh_df = featureData[logging.ab_onehot_vh_columns]
             vh_fam = vh_df.columns[(vh_df == 1).all()].item()
             vl_df = featureData[logging.ab_onehot_vl_columns]
             vl_fam = vl_df.columns[(vl_df == 1).all()].item()
-            feature_token = aa_tokenizer.tokenize_feature(res_short_list, vh_fam, vl_fam)
+            feature_token = aa_tokenizer.tokenize_feature(vh_fam, vl_fam)
         else:
             feature_token = torch.tensor(0)
 
-        if (logging.use_continuous != 'no') | logging.use_struct:
+        if logging.use_struct:
             feature_struct = extract_feature(featureData, pdbId, logging)
+            assert not torch.isnan(feature_struct).any(), f'Feature struct of {pdbId} has nan'
             assert feature_struct.size(dim=0) == label.size(dim=0), f'PDB {pdbId} has mismatch size of feature {feature_struct.size()} vs. label {label.size()}'
             if logging.softmax_data:
                 feature_struct = softmax_class(feature_struct)
         else:
             feature_struct = torch.tensor(0)
 
+        if logging.use_antiberty:
+            with open(os.path.join(feature_folder, 'sequence','cdr_sequence.json'), 'r') as f:
+                ab_feature = ab_pretrained_model.embed([json.load(f)['H3_seq']])[0].detach().cpu()
+            ab_feature = torch.cat((ab_feature, torch.zeros(logging.antiberty_max_len - ab_feature.size(0), 512)),0).flatten()
+            ab_feature = ab_feature.expand(feature_struct.size(0), -1)
+            feature_struct = torch.cat((feature_struct, ab_feature), dim=1)
+        
         assert edge.size(dim=1) == attribute.size(dim=0), f'PDB {pdbId} has mismatch size of edge {edge.size()} vs. attribute {label.size()}'
 
         res_short = featureData.resShort.to_numpy()
@@ -157,29 +176,14 @@ def read_feature_name(logging):
                 logging.feature_columns_number = logging.reserved_columns + len(logging.ab_onehot_vh_columns) + len(logging.ab_onehot_vl_columns)
             
         elif logging.feature_version == 'v1.0.2':
-            if logging.use_continuous == 'absolute':
-                continuous_feature_dim = logging.reserved_columns
-            elif logging.use_continuous == 'embeded':
-                continuous_feature_dim = logging.continuous_embed_dim
-            else:
-                continuous_feature_dim = 0
 
             if logging.use_token:
-                token_dim = logging.token_dim
-                logging.token_size = len(feature_name_dict['AA_short']) * len(feature_name_dict['Ab_features']['onehot_vh']) * len(feature_name_dict['Ab_features']['onehot_vl'])
+                token_dim = logging.token_dim * 2 # For vh and vl
             else:
-                token_dim = 0
+                logging.onehot_columns = logging.onehot_columns + logging.ab_onehot_vh_columns + logging.ab_onehot_vl_columns
+                token_dim = len(logging.ab_onehot_vh_columns) + len(logging.ab_onehot_vl_columns)
 
-            if logging.combine_input == 'concat':
-                logging.feature_columns_number = continuous_feature_dim + token_dim
-            else:
-                if continuous_feature_dim == 0:
-                    logging.feature_columns_number = token_dim
-                elif token_dim == 0:
-                    logging.feature_columns_number = continuous_feature_dim
-                else:
-                    assert continuous_feature_dim == token_dim, f'If data is not concatenated, Continuous dim ({continuous_feature_dim}) and Token dim ({token_dim}) have to be the same.'
-                    logging.feature_columns_number = continuous_feature_dim
+            logging.feature_columns_number = logging.reserved_columns + token_dim
     return feature_name_dict
 
 def process_data(logging):
@@ -222,16 +226,16 @@ def process_data(logging):
         #     pretrained_para = json.load(f)
     logging.feature_name_dict = read_feature_name(logging)
 
-    if logging.combine_input == 'concat':
-        logging.in_feature += logging.pretrained_dim if logging.use_pretrained else 0
-        logging.in_feature += logging.feature_columns_number
-    elif logging.combine_input == 'addition':
-        if logging.use_pretrained:
-            logging.in_feature = logging.pretrained_dim
-        else:
-            assert logging.feature_columns_number != 0, f'Not using pre-trained data should not have 0 size of Continuous + Token.'
-            logging.in_feature = logging.feature_columns_number
+    logging.in_feature += logging.pretrained_dim if logging.use_pretrained else 0
+    logging.in_feature += logging.feature_columns_number
     assert logging.in_feature != 0, 'Dimension of feature could not be 0.'
+
+    if logging.use_antiberty:
+        from antiberty import AntiBERTyRunner
+        ab_pretrained_model = AntiBERTyRunner()
+        logging.in_feature += logging.antiberty_max_len * 512
+    else:
+        ab_pretrained_model = None
     
     pdb_df = pd.read_csv(logging.directory_pdb_list)
     train_list = pdb_df.to_numpy().flatten()
@@ -241,20 +245,24 @@ def process_data(logging):
             pdb_df = pd.concat([pdb_df, pdb_df + '_re'])
         train_list = pdb_df.to_numpy().flatten()
         train_data, adj_train_list = batch_list(train_list, logging, logging.feature_name_dict, batchType='train', 
-                                                pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model)
+                                                pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model,
+                                                ab_pretrained_model=ab_pretrained_model)
         return train_data, adj_train_list
     else:
         train_data, adj_train_list = batch_list(train_list, logging, logging.feature_name_dict, batchType='train', 
-                                                pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model)
+                                                pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model,
+                                                ab_pretrained_model=ab_pretrained_model)
         if logging.use_relaxed:
             relaxed_train_df = pdb_df + '_re'
             relaxed_train_list = relaxed_train_df.to_numpy().flatten()
             relaxed_train_data, adj_relaxed_train_list = batch_list(relaxed_train_list, logging, logging.feature_name_dict, batchType='relaxed train',
-                                                                    pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model)
+                                                                    pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model,
+                                                                    ab_pretrained_model=ab_pretrained_model)
         else:
             adj_relaxed_train_list = None
             relaxed_train_data = None
         test_list = pd.read_csv(logging.directory_unseen_pdb_list).to_numpy().flatten()
         test_data, test_list = batch_list(test_list, logging, logging.feature_name_dict, batchType='test',
-                                          pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model)
+                                          pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model,
+                                          ab_pretrained_model=ab_pretrained_model)
         return train_data, adj_train_list, relaxed_train_data, adj_relaxed_train_list, test_data, test_list

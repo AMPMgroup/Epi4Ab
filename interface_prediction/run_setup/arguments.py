@@ -45,9 +45,6 @@ def initiate_argument():
     parser.add_argument('--feature_version',
                         help='Choose version of features',
                         default='v1.0.1', choices=['v1.0.0', 'v1.0.1', 'v1.0.2'])
-    parser.add_argument('--combine_input',
-                        help='Using concat for input data in initial process',
-                        default='concat', type=str, choices=['concat','addition'])
     parser.add_argument('--use_region',
                         help='Using only region near interface',
                         action='store_true')
@@ -82,14 +79,7 @@ def initiate_argument():
                         action='store_true')
     parser.add_argument('--token_dim', metavar='',
                         help='Dimension size of token',
-                        default=None, type=int)
-    # Continuous
-    parser.add_argument('--use_continuous',
-                        help='Use continuous in input data backbone, only applicable for version 1.0.2',
-                        default='absolute', type=str, choices=['absolute','embeded','no'])
-    parser.add_argument('--continuous_embed_dim', metavar='',
-                        help='Dimension of continuous feature after embedding.',
-                        default=None, type=int)
+                        default=3, type=int)
     # Pre-trained
     parser.add_argument('--use_pretrained',
                         help='Using pre-trained',
@@ -99,11 +89,18 @@ def initiate_argument():
                         default='protBERT', type=str, choices=['protBERT','ESM2_t6','ESM2_t12','ESM2_t30','ESM2_t33','ESM2_t36'])
     parser.add_argument('--freeze_pretrained',
                         help='While using pre-trained, the pre-trained model can not be updated.',
-                        action='store_true')
+                        action='store_false')
     # Struct of version 1.0.1
     parser.add_argument('--use_struct',
                         help='Using struct for version 1.0.1',
                         action='store_true')
+    # AntiBERTy
+    parser.add_argument('--use_antiberty',
+                        help='Using AntiBERTy for H3, L1',
+                        action='store_true')
+    parser.add_argument('--antiberty_max_len', metavar='',
+                        help='Max length of H3 used for antiberty',
+                        default=30, type=int)
     # Graph Model
     parser.add_argument('--use_base_model',
                         help='Using Conv in layers, also with fc_out',

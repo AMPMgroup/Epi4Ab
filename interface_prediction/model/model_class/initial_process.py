@@ -3,21 +3,17 @@ from torch import nn
 
 class InitialProcess(nn.Module):
     def __init__(self,
-                 combine_input,
                  use_pretrained,
                  pretrained_model,
                  freeze_pretrained,
                  use_token,
-                 token_size,
+                 vh_token_size,
+                 vl_token_size,
                  token_dim,
-                 use_continuous,
-                 reserved_columns,
-                 continuous_embed_dim,
                  use_struct,
                  initial_process_weight_dict,
                  device):
         super(InitialProcess, self).__init__()
-        self.combine_input = combine_input
         self.use_pretrained = use_pretrained
         self.freeze_pretrained = freeze_pretrained
         if self.use_pretrained & (not self.freeze_pretrained):
@@ -42,14 +38,12 @@ class InitialProcess(nn.Module):
                 elif pretrained_model == 'ESM2_t36':
                     self.pretrained_tokenize = AutoTokenizer.from_pretrained("facebook/esm2_t36_3B_UR50D")
                     self.pretrained_model = EsmModel.from_pretrained("facebook/esm2_t36_3B_UR50D")
-        self.use_continuous = use_continuous
         self.use_token = use_token
         self.use_struct = use_struct
         self.initial_process_weight_dict = initial_process_weight_dict
-        if self.use_continuous == 'embeded':
-            self.struct_embed = nn.Linear(reserved_columns, continuous_embed_dim)
         if self.use_token:
-            self.token_embed = nn.Embedding(token_size, token_dim)
+            self.vh_token_embed = nn.Embedding(vh_token_size, token_dim)
+            self.vl_token_embed = nn.Embedding(vl_token_size, token_dim)
         self.device = device
 
     def run_pretrained(self, seq):
@@ -70,29 +64,26 @@ class InitialProcess(nn.Module):
                 else:
                     x_seq = self.run_pretrained(x_seq)
             x_seq = x_seq * self.initial_process_weight_dict['pre-trained']
+            seq_len = x_seq.size(0)
         else:
             x_seq = None
 
-        if self.use_continuous == 'embeded':
-            x_struct = self.struct_embed(x_struct) * self.initial_process_weight_dict['struct']
-        elif (self.use_continuous == 'absolute') | (self.use_struct):
+        if self.use_struct:
             x_struct = x_struct * self.initial_process_weight_dict['struct']
+            seq_len = x_struct.size(0)
         else:
             x_struct = None
         
         if self.use_token:
-            token_feature = self.token_embed(token_seq) * self.initial_process_weight_dict['token']
+            vh_token_feature = self.vh_token_embed(token_seq[0])
+            vl_token_feature = self.vl_token_embed(token_seq[1])
+            token_feature = torch.cat([vh_token_feature, vl_token_feature]).expand(seq_len, -1)* self.initial_process_weight_dict['token']
         else:
             token_feature = None
 
         assert (x_seq is not None) | (x_struct is not None) | (token_feature is not None), f'{x_seq}, {x_struct} and {token_feature} cannot be all None.'
 
         x_list = [i for i in [x_struct, x_seq, token_feature] if i is not None]
-
-        if self.combine_input == 'concat':
-            x = torch.cat(x_list, dim=1) if len(x_list) > 1 else x_list[0]
-        else:
-            # NOTE: should consider divide by sum of weight
-            x = torch.stack(x_list).sum(dim=0)/len(x_list) if len(x_list) > 1 else x_list[0]
+        x = torch.cat(x_list, dim=1) if len(x_list) > 1 else x_list[0]
         return x
 

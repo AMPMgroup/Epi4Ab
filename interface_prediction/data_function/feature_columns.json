@@ -11,7 +11,7 @@
         {
             "Ag_features":
             {
-                "continuous" : ["sasa", "resDepth", "caDepth", "charge","psi", "phi", "omega", "chi","weight", "volume", "hydrophobicity", "atomNumber", "pI", "aac"],
+                "continuous" : ["resDepth", "caDepth", "charge","psi", "phi", "omega", "chi","weight", "volume", "hydrophobicity", "atomNumber", "pI", "aac", "cc"],
                 "onehot" : ["angleNan", "chiNan","negative", "positive", "polar","hydrophobic", "neutral", "hydroxyl", "sulfur", "carboxyl", "amino","heterocyclic", "benzene", "imino"]
             },
             "Ab_features":
@@ -28,7 +28,7 @@
         {
             "Ag_features":
             {
-                "continuous" : ["sasa","resDepth", "caDepth", "psi", "phi", "omega", "chi", "aac"],
+                "continuous" : ["resDepth", "caDepth", "psi", "phi", "omega", "chi", "aac", "cc"],
                 "onehot" : ["angleNan", "chiNan"]
             },
             "Ab_features":

@@ -12,11 +12,14 @@ batch_size=3
 attribute_weight=0.5663967728614807 -0.21957363188266754 0.009314547292888165
 label_from_ellipro_pi
 use_relaxed
+use_antiberty
 #not_normalize_data
 #edge_threshold=4.5
 
-feature_version=v1.0.1
+#feature_version=v1.0.1
+feature_version=v1.0.2
 use_struct
+use_token
 
 ### Output
 #save_statedict
@@ -35,3 +38,5 @@ attention_head=4
 #dropout_edge_p=0.5
 gat_concat
 #block_norm=batchnorm
+
+use_pretrained

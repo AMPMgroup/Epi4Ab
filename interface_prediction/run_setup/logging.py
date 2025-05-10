@@ -19,7 +19,6 @@ class ModelLogging:
         self.node_label_file = None
         # data
         self.feature_version = args.feature_version
-        self.combine_input = 'concat' if args.feature_version in ['v1.0.0','v1.0.1'] else args.combine_input
         self.continuous_columns = None
         self.ag_continuous_columns = None
         self.ab_continuous_columns = None
@@ -62,27 +61,17 @@ class ModelLogging:
             self.pretrained_dim = None
         self.freeze_pretrained = args.freeze_pretrained if self.use_pretrained else None
         # Continuous
-        if args.feature_version != 'v1.0.2':
-            self.use_continuous = 'no'
-        elif self.use_pretrained & (args.use_continuous != 'no') & (self.combine_input == 'addition'):
-            self.use_continuous = 'embeded'
-        else:
-            self.use_continuous = args.use_continuous
-        if self.use_continuous == 'embeded':
-            assert args.continuous_embed_dim is not None, 'If use_continuous == "embeded", continuous_embed_dim cannot be None'
-            self.continuous_embed_dim = self.pretrained_dim if (self.combine_input == 'addition') & (self.use_pretrained) else args.continuous_embed_dim
-        else:
-            self.continuous_embed_dim = None
+        self.continuous_embed_dim = None
         self.reserved_columns = 0
         # Token
         self.use_token = args.use_token if args.feature_version == 'v1.0.2' else False
         self.token_size = 0
-        if self.use_token:
-            self.token_dim = self.pretrained_dim if (self.combine_input == 'addition') & (self.use_pretrained) else args.token_dim
-        else:
-            self.token_dim = None
+        self.token_dim = args.token_dim
+        # AntiBERTy
+        self.use_antiberty = args.use_antiberty
+        self.antiberty_max_len = args.antiberty_max_len
         # Struct
-        self.use_struct = False if args.feature_version == 'v1.0.2' else args.use_struct
+        self.use_struct = args.use_struct
         # graph model
         self.use_base_model = args.use_base_model
         self.not_include_gat = args.not_include_gat
@@ -194,7 +183,6 @@ Code version: {self.code_version}
 | Variable | Value |
 | --- | --- |
 | Feature version | {self.feature_version} |
-| Combine input | {self.combine_input} |
 | Continuous features | {self.continuous_columns} |
 | One-hot features | {self.onehot_columns} |
 | Amino acid list | {self.amino_acid_list} |'''
@@ -203,10 +191,6 @@ Code version: {self.code_version}
 | Tokenize data | {self.use_token} |
 | Token size | {self.token_size} |
 | Token dimension | {self.token_dim} |'''
-        if self.use_continuous:
-            message += f'''   
-| Embedded continuous feature size | {self.continuous_embed_dim} |
-| Reserved columns size | {self.reserved_columns} |'''
         if self.feature_version != 'v1.0.2':
             message += f'''   
 | Using struct | {self.use_struct} |'''
@@ -240,6 +224,8 @@ Code version: {self.code_version}
 | Relation type | Communication / (Distance - 2) |'''
 
         message += f'''
+| Use AntiBERTy | {self.use_antiberty} |
+| H3 max length for AntiBERTy | {self.antiberty_max_len} |
 | Softmax data | {self.softmax_data} |
 | Data normalization before training | {not self.not_normalize_data} |
 | ElliPro label | {'PI' if self.label_from_ellipro_pi else 'Linear'} |

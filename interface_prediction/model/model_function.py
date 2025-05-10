@@ -3,16 +3,15 @@ from .model_class.initial_process import InitialProcess
 from .normalizer import Normalizer
 
 def choose_model(logging):
-    initial_process = InitialProcess(logging.combine_input,
-                                    logging.use_pretrained,
+    initial_process = InitialProcess(logging.use_pretrained,
                                     logging.pretrained_model,
                                     logging.freeze_pretrained,
                                     logging.use_token,
-                                    logging.token_size,
+                                    len(logging.ab_onehot_vh_columns), 
+                                    len(logging.ab_onehot_vl_columns),
                                     logging.token_dim,
-                                    logging.use_continuous,
-                                    logging.reserved_columns,
-                                    logging.continuous_embed_dim,
+                                    # logging.reserved_columns,
+                                    # logging.continuous_embed_dim,
                                     logging.use_struct,
                                     logging.initial_process_weight_dict,
                                     logging.device)

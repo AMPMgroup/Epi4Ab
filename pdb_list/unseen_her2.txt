@@ -2,13 +2,10 @@ pdbId
 1n8z_BAC
 1s78_DCA
 3be1_HLA
-3h3b_cCA
 3n85_HLA
 3wlw_CDA
-3wlw_HLB
 3wsq_HLA
 5o4g_BAC
 5o4o_BAC
 6att_HLA
-6bgt_BAC
 7mn8_DCB
