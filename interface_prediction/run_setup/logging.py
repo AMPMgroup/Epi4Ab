@@ -64,7 +64,7 @@ class ModelLogging:
         self.continuous_embed_dim = None
         self.reserved_columns = 0
         # Token
-        self.use_token = args.use_token if args.feature_version == 'v1.0.2' else False
+        self.use_token = args.use_token
         self.token_size = 0
         self.token_dim = args.token_dim
         # AntiBERTy

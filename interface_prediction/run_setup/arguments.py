@@ -75,7 +75,7 @@ def initiate_argument():
                         action='store_true')
     # Token
     parser.add_argument('--use_token',
-                        help='Use token in input data backbone, only applicable for version 1.0.2',
+                        help='Use token representing vh vl family',
                         action='store_true')
     parser.add_argument('--token_dim', metavar='',
                         help='Dimension size of token',
@@ -92,11 +92,11 @@ def initiate_argument():
                         action='store_false')
     # Struct of version 1.0.1
     parser.add_argument('--use_struct',
-                        help='Using struct for version 1.0.1',
+                        help='Using struct data',
                         action='store_true')
     # AntiBERTy
     parser.add_argument('--use_antiberty',
-                        help='Using AntiBERTy for H3, L1',
+                        help='Using AntiBERTy for H3',
                         action='store_true')
     parser.add_argument('--antiberty_max_len', metavar='',
                         help='Max length of H3 used for antiberty',

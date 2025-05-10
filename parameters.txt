@@ -1,8 +1,9 @@
 ### Choose model
 model_name=GNNNaive
 model_block=GNNNaiveBlock_Cheb
-feature_version=v1.0.1
+feature_version=v1.0.2
 use_struct
+use_pretrained
 #use_base_model
 
 ### Epoch parameter
@@ -29,3 +30,7 @@ block_norm=batchnorm
 train_all=with_validation
 #train_all=yes
 plot_network
+
+use_antiberty
+use_token
+#### Default: freeze_pretrained is True --> no need in parameters.txt
