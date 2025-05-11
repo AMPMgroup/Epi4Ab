@@ -53,10 +53,11 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
         if logging.use_relaxed & (pdbId[-3:] == '_re'): # Get data based on relaxed or bound
         #     pdb_folder = os.path.join(logging.directory_data, pdbId[:-3])
             label_folder = os.path.join(logging.directory_data, pdbId[:-3])
+            feature_folder = os.path.join(logging.directory_processed_data, pdbId[:-3])
         else:
         #     pdb_folder = os.path.join(logging.directory_data, pdbId)
             label_folder = os.path.join(logging.directory_data, pdbId)
-        feature_folder = os.path.join(logging.directory_processed_data, pdbId)
+            feature_folder = os.path.join(logging.directory_processed_data, pdbId)
         # featureData = pd.read_parquet(os.path.join(feature_folder, logging.feature_file))
         pdb_folder = os.path.join(logging.directory_data, pdbId)
         featureData = pd.read_parquet(os.path.join(pdb_folder, logging.feature_file))
