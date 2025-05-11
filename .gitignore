@@ -5,3 +5,5 @@ __pycache__
 .rescache
 .ipynb_checkpoints
 .DS_Store
+parameter.txt
+.env
