@@ -88,7 +88,7 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
             res_id = torch.tensor(featureData.resId.to_numpy(), dtype=torch.long)
 
             if logging.use_pretrained:
-                with open(os.path.join(logging.directory_processed_data, pdbId, 'sequence','antigen_sequence.json'), 'r') as f:
+                with open(os.path.join(feature_folder, 'sequence','antigen_sequence.json'), 'r') as f:
                     x_seq = json.load(f)['pdb_sequence'].replace('gap','').replace('x','')
                 if logging.freeze_pretrained:
                     encode_input = pretrained_tokenize(x_seq, return_tensors = 'pt')
@@ -154,9 +154,7 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
             error_list.append(pdbId)
         
     if error_list:
-        print(f'Error PDB while processing data: {error_list}')
-        assert error_list == [], f'{error_list}'
-        logging.error_data_process_list.extend(error_list)
+        assert error_list == [], f'Error PDB while processing data: {error_list}'
     return dataBatch, new_pdb_list
 
 def read_feature_name(logging):
