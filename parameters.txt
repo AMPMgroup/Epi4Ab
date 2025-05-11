@@ -8,7 +8,7 @@ use_pretrained
 
 ### Epoch parameter
 learning_rate=0.0005
-epoch_number=500
+epoch_number=10
 batch_size=3
 
 ### Data
