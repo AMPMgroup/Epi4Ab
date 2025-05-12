@@ -98,9 +98,18 @@ def initiate_argument():
     parser.add_argument('--use_antiberty',
                         help='Using AntiBERTy for H3',
                         action='store_true')
-    parser.add_argument('--antiberty_max_len', metavar='',
+    parser.add_argument('--antiberty_max_len',
                         help='Max length of H3 used for antiberty',
                         default=30, type=int)
+    parser.add_argument('--antiberty_ff_dim',
+                        help='Dimension of 1st Linear in antiberty feed forward',
+                        default=128, type=int)
+    parser.add_argument('--antiberty_ff_out',
+                        help='Dimension of 2nd Linear in antiberty feed forward',
+                        default=16, type=int)
+    parser.add_argument('--antiberty_ff_dropout',
+                        help='Dropout in antiberty feed forward',
+                        default=0.2, type=float)
     # Graph Model
     parser.add_argument('--use_base_model',
                         help='Using Conv in layers, also with fc_out',
@@ -135,6 +144,9 @@ def initiate_argument():
                         default=1, type=int)
     parser.add_argument('--initial_process_struct_weight',
                         help='Weight of struct data in initial_process',
+                        default=1, type=int)
+    parser.add_argument('--initial_process_antiberty_weight',
+                        help='Weight of antiberty data in initial_process',
                         default=1, type=int)
     parser.add_argument('--initial_process_token_weight',
                         help='Weight of token data in initial_process',

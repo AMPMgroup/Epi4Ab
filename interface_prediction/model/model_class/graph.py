@@ -96,7 +96,7 @@ class GNNNaive(nn.Module):
         if self.use_norm:
             self.norm = normalizer(channel_list[hidden_channel_ind])
 
-    def forward(self, x_struct, x_seq, edgeIndex, edgeAttribute, token_seq):
+    def forward(self, x_struct, x_seq, edgeIndex, edgeAttribute, x_antiberty, token_seq, node_size):
         if self.gradient_attribute:
             atb = torch.flatten(self.attribute_layer(edgeAttribute)).clamp(0)
             # atb = torch.where(atb < 0, 0, atb)
@@ -104,7 +104,7 @@ class GNNNaive(nn.Module):
             atb = edgeAttribute
         assert not atb.isnan().any(), f'There is NaN value after attribute layer {atb}'
 
-        x = self.initial_process(x_struct, x_seq, token_seq)
+        x = self.initial_process(x_struct, x_seq, x_antiberty, token_seq, node_size)
 
         for layer in self.layers:
             x = layer(x, edgeIndex, atb)
@@ -197,14 +197,14 @@ class GNNResNet(nn.Module):
         self.use_norm = normalizer.use_norm
         if self.use_norm:
             self.norm = normalizer(channel_list[hidden_channel_ind])
-    def forward(self, x_struct, x_seq, edgeIndex, edgeAttribute, token_seq):
+    def forward(self, x_struct, x_seq, edgeIndex, edgeAttribute, x_antiberty, token_seq, node_size):
         if self.gradient_attribute:
             atb = torch.flatten(self.attribute_layer(edgeAttribute)).clamp(0)
         else:
             atb = edgeAttribute
         assert not atb.isnan().any(), f'There is NaN value after attribute layer {atb}'
 
-        x = self.initial_process(x_struct, x_seq, token_seq)
+        x = self.initial_process(x_struct, x_seq, x_antiberty, token_seq, node_size)
 
         for layer in self.layers:
             if self.dropout_edge_p is not None:

@@ -6,6 +6,12 @@ class InitialProcess(nn.Module):
                  use_pretrained,
                  pretrained_model,
                  freeze_pretrained,
+                 use_antiberty,
+                 antiberty_ff_in,
+                 antiberty_ff_dim,
+                 antiberty_ff_out,
+                 antiberty_ff_dropout,
+                 antiberty_max_len,
                  use_token,
                  vh_token_size,
                  vl_token_size,
@@ -38,6 +44,13 @@ class InitialProcess(nn.Module):
                 elif pretrained_model == 'ESM2_t36':
                     self.pretrained_tokenize = AutoTokenizer.from_pretrained("facebook/esm2_t36_3B_UR50D")
                     self.pretrained_model = EsmModel.from_pretrained("facebook/esm2_t36_3B_UR50D")
+        self.use_antiberty = use_antiberty
+        self.antiberty_max_len = antiberty_max_len
+        if self.use_antiberty:
+            self.linear1 = nn.Linear(antiberty_ff_in, antiberty_ff_dim)
+            self.dropout = nn.Dropout(antiberty_ff_dropout)
+            self.activation = nn.ReLU()
+            self.linear2 = nn.Linear(antiberty_ff_dim, antiberty_ff_out)
         self.use_token = use_token
         self.use_struct = use_struct
         self.initial_process_weight_dict = initial_process_weight_dict
@@ -53,7 +66,7 @@ class InitialProcess(nn.Module):
         output = output[0].reshape(output[0].shape[1],-1)[1:-1,:]
         return output
 
-    def forward(self, x_struct, x_seq, token_seq):
+    def forward(self, x_struct, x_seq, x_antiberty, token_seq, node_size):
         if self.use_pretrained:
             if not self.freeze_pretrained:
                 if isinstance(x_seq, list):
@@ -74,16 +87,26 @@ class InitialProcess(nn.Module):
         else:
             x_struct = None
         
+        if self.use_antiberty:
+            x_antiberty = torch.stack(torch.split(x_antiberty, [self.antiberty_max_len]*len(node_size)))
+            x_antiberty = self.linear2(self.dropout(self.activation(self.linear1(x_antiberty)))).flatten(1)
+            x_antiberty = torch.cat([i.expand(s, -1) for i,s in zip(x_antiberty,node_size)])* self.initial_process_weight_dict['antiberty']
+        else:
+            x_antiberty = None
+        
         if self.use_token:
-            vh_token_feature = self.vh_token_embed(token_seq[0])
-            vl_token_feature = self.vl_token_embed(token_seq[1])
-            token_feature = torch.cat([vh_token_feature, vl_token_feature]).expand(seq_len, -1)* self.initial_process_weight_dict['token']
+            token_feature = []
+            for token, pdb_size in zip(token_seq, node_size):
+                vh_token_feature = self.vh_token_embed(token[0])
+                vl_token_feature = self.vl_token_embed(token[1])
+                token_feature.append(torch.cat([vh_token_feature, vl_token_feature]).expand(pdb_size, -1))
+            token_feature = torch.cat(token_feature)* self.initial_process_weight_dict['token']
         else:
             token_feature = None
 
         assert (x_seq is not None) | (x_struct is not None) | (token_feature is not None), f'{x_seq}, {x_struct} and {token_feature} cannot be all None.'
 
-        x_list = [i for i in [x_struct, x_seq, token_feature] if i is not None]
+        x_list = [i for i in [x_struct, x_seq, x_antiberty, token_feature] if i is not None]
         x = torch.cat(x_list, dim=1) if len(x_list) > 1 else x_list[0]
         return x
 
