@@ -32,6 +32,7 @@ def plot_network(node_list, pred_list, true_list, edge, attr, pdbId, fold_folder
 
     # Draw
     G = nx.from_pandas_edgelist(edge_df)
+    G.add_nodes_from(node_list)
     plt.figure(figsize = (20,10))
     pos = nx.spring_layout(G, seed=networkx_seed)
     plt.subplot(121)
