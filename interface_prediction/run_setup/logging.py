@@ -70,6 +70,10 @@ class ModelLogging:
         # AntiBERTy
         self.use_antiberty = args.use_antiberty
         self.antiberty_max_len = args.antiberty_max_len
+        self.antiberty_ff_dim = args.antiberty_ff_dim
+        self.antiberty_ff_out = args.antiberty_ff_out
+        self.antiberty_ff_dropout = args.antiberty_ff_dropout
+        self.antiberty_dim = 512
         # Struct
         self.use_struct = args.use_struct
         # graph model
@@ -98,7 +102,8 @@ class ModelLogging:
         self.initial_process_weight_dict = {
             'pre-trained' :1 if args.feature_version in ['v1.0.0','v1.0.1'] else args.initial_process_pretrained_weight,
             'struct': 1 if args.feature_version in ['v1.0.0','v1.0.1'] else args.initial_process_struct_weight,
-            'token': 0 if args.feature_version in ['v1.0.0','v1.0.1'] else args.initial_process_token_weight
+            'antiberty': 1 if args.feature_version in ['v1.0.0','v1.0.1'] else args.initial_process_antiberty_weight,
+            'token': 1 if args.feature_version in ['v1.0.0','v1.0.1'] else args.initial_process_token_weight
         }
         self.gat_concat = args.gat_concat
         self.block_norm = args.block_norm
@@ -226,6 +231,9 @@ Code version: {self.code_version}
         message += f'''
 | Use AntiBERTy | {self.use_antiberty} |
 | H3 max length for AntiBERTy | {self.antiberty_max_len} |
+| AntiBERTy feed forward dimension | {self.antiberty_ff_dim} |
+| AntiBERTy feed forward output | {self.antiberty_ff_out} |
+| AntiBERTy feed forward dropout | {self.antiberty_ff_dropout} |
 | Softmax data | {self.softmax_data} |
 | Data normalization before training | {not self.not_normalize_data} |
 | ElliPro label | {'PI' if self.label_from_ellipro_pi else 'Linear'} |

@@ -35,7 +35,7 @@ class TrainModel:
 
     def process_modelling(self, data):
         data = data.to(self.device)
-        out = self.modelBuild(data.x, data.x_seq, data.edge_index, data.edge_attr, data.feature_token)
+        out = self.modelBuild(data.x, data.x_seq, data.edge_index, data.edge_attr, data.x_ab, data.feature_token, data.node_size)
         assert out.shape[0] == data.y.shape[0], f'Model output and Ground truth have mismatch shape {out.shape} vs. {data.y.shape}, PDBs in batch: {data.pdb_id}'
         loss = self.loss_function(out, data.y)
         assert not loss.isnan().any(), f'There is NaN value after loss function {loss}'

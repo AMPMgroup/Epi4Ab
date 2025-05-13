@@ -109,7 +109,7 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
                 vh_fam = vh_df.columns[(vh_df == 1).all()].item()
                 vl_df = featureData[logging.ab_onehot_vl_columns]
                 vl_fam = vl_df.columns[(vl_df == 1).all()].item()
-                feature_token = aa_tokenizer.tokenize_feature(vh_fam, vl_fam)
+                feature_token = aa_tokenizer.tokenize_feature(vh_fam, vl_fam).unsqueeze(0)
             else:
                 feature_token = torch.tensor(0)
 
@@ -126,9 +126,12 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
             if logging.use_antiberty:
                 with open(os.path.join(feature_folder, 'sequence','cdr_sequence.json'), 'r') as f:
                     ab_feature = ab_pretrained_model.embed([json.load(f)['H3_seq']])[0].detach().cpu()
-                ab_feature = torch.cat((ab_feature, torch.zeros(logging.antiberty_max_len - ab_feature.size(0), 512)),0).flatten()
-                ab_feature = ab_feature.expand(feature_struct.size(0), -1)
-                feature_struct = torch.cat((feature_struct, ab_feature), dim=1)
+                ab_feature = torch.cat((ab_feature, torch.zeros(logging.antiberty_max_len - ab_feature.size(0), 512)),0)
+                # ab_feature = torch.cat((ab_feature, torch.zeros(logging.antiberty_max_len - ab_feature.size(0), 512)),0).flatten()
+                # ab_feature = ab_feature.expand(feature_struct.size(0), -1)
+                # feature_struct = torch.cat((feature_struct, ab_feature), dim=1)
+            else:
+                ab_feature = torch.tensor(0)
             
             assert edge.size(dim=1) == attribute.size(dim=0), f'PDB {pdbId} has mismatch size of edge {edge.size()} vs. attribute {label.size()}'
 
@@ -136,6 +139,7 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
             new_pdb_list.append(pdbId)
             dataBatch.append(Data(x=feature_struct,
                                     x_seq=x_seq,
+                                x_ab=ab_feature,
                                 y=label, 
                                 edge_index=edge,
                                 edge_attr=attribute,
@@ -235,7 +239,7 @@ def process_data(logging):
     if logging.use_antiberty:
         from antiberty import AntiBERTyRunner
         ab_pretrained_model = AntiBERTyRunner()
-        logging.in_feature += logging.antiberty_max_len * 512
+        logging.in_feature += logging.antiberty_max_len * logging.antiberty_ff_out
     else:
         ab_pretrained_model = None
     
