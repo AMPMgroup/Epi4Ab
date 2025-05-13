@@ -62,7 +62,7 @@ def extract_seq_feature(sequence,
     return torch.tensor(feature_data, dtype = torch.float)
 
 def filter_neighbor(edge, dist_att, charge_att, dist_threshold):
-    filter_bool = dist_att < dist_threshold
+    filter_bool = dist_att <= dist_threshold
     edge = edge[:,filter_bool]
     dist_att = dist_att[filter_bool]
     charge_att = charge_att[filter_bool]
