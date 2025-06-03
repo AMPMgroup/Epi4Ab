@@ -19,7 +19,8 @@ class GNNNaive(nn.Module):
                  gradient_attribute_with_bias,
                  model_block:str,
                  use_base_model:bool,
-                 normalizer):
+                 normalizer,
+                 ):
         '''
         Parameters:
             in_feature: input dimension

@@ -231,8 +231,10 @@ def process_data(logging):
         # with open(Path(__file__).parent / 'pretrained_parameter.json', 'r') as f:
         #     pretrained_para = json.load(f)
     logging.feature_name_dict = read_feature_name(logging)
-
-    logging.in_feature += logging.pretrained_dim if logging.use_pretrained else 0
+    if logging.use_pretrained & logging.use_seq_ff:
+        logging.in_feature += logging.seq_ff_out
+    else:
+        logging.in_feature += logging.pretrained_dim if logging.use_pretrained else 0
     logging.in_feature += logging.feature_columns_number
     assert logging.in_feature != 0, 'Dimension of feature could not be 0.'
 
