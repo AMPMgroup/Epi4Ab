@@ -6,6 +6,11 @@ class InitialProcess(nn.Module):
                  use_pretrained,
                  pretrained_model,
                  freeze_pretrained,
+                 use_seq_ff,
+                 seq_ff_in,
+                 seq_ff_dim,
+                 seq_ff_out,
+                 seq_ff_dropout,
                  use_antiberty,
                  antiberty_ff_in,
                  antiberty_ff_dim,
@@ -21,6 +26,13 @@ class InitialProcess(nn.Module):
                  device):
         super(InitialProcess, self).__init__()
         self.use_pretrained = use_pretrained
+        self.use_seq_ff = use_seq_ff
+        if self.use_pretrained:
+            if use_seq_ff:
+                self.seq_linear1 = nn.Linear(seq_ff_in, seq_ff_dim)
+                self.seq_dropout = nn.Dropout(seq_ff_dropout)
+                self.seq_activation = nn.ReLU()
+                self.seq_linear2 = nn.Linear(seq_ff_dim, seq_ff_out)
         self.freeze_pretrained = freeze_pretrained
         if self.use_pretrained & (not self.freeze_pretrained):
             if pretrained_model == 'protBERT':
@@ -76,6 +88,8 @@ class InitialProcess(nn.Module):
                     x_seq = torch.cat(temp_seq, dim = 0)
                 else:
                     x_seq = self.run_pretrained(x_seq)
+            if self.use_seq_ff:
+                x_seq = self.seq_linear2(self.seq_dropout(self.seq_activation(self.seq_linear1(x_seq))))
             x_seq = x_seq * self.initial_process_weight_dict['pre-trained']
             seq_len = x_seq.size(0)
         else:

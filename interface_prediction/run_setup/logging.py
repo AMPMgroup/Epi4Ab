@@ -32,6 +32,7 @@ class ModelLogging:
         self.edge_threshold = args.edge_threshold
         self.use_region = args.use_region
         self.use_relaxed = args.use_relaxed
+        self.use_alphafold = args.use_alphafold
         self.num_kfold = args.num_kfold
         self.softmax_data = args.softmax_data
         self.not_normalize_data = args.not_normalize_data
@@ -60,6 +61,10 @@ class ModelLogging:
         else:
             self.pretrained_dim = None
         self.freeze_pretrained = args.freeze_pretrained if self.use_pretrained else None
+        self.use_seq_ff = args.use_seq_ff
+        self.seq_ff_dim = args.seq_ff_dim
+        self.seq_ff_out = args.seq_ff_out
+        self.seq_ff_dropout = args.seq_ff_dropout
         # Continuous
         self.continuous_embed_dim = None
         self.reserved_columns = 0
@@ -148,6 +153,8 @@ class ModelLogging:
         self.directory_processed_data:str = args.directory_processed_data
         self.directory_pdb_list:str = args.directory_pdb_list
         self.directory_unseen_pdb_list:str = args.directory_unseen_pdb_list
+        self.directory_af_pdb_list:str = args.directory_af_pdb_list
+        self.directory_unseen_af_pdb_list:str = args.directory_unseen_af_pdb_list
         self.directory_output:str = args.directory_output
         self.directory_output_folder:str = None
         self.directory_test_record:str = None
@@ -203,6 +210,7 @@ Code version: {self.code_version}
         message += f'''
 | Use Region | {self.use_region} |
 | Use Relaxed data | {self.use_relaxed} |
+| Use Alpha Fold data | {self.use_alphafold} |
 | Use pre-trained | {self.use_pretrained} |'''
         if self.use_pretrained:
             message += f'''
@@ -330,6 +338,8 @@ Code version: {self.code_version}
 | Processed data | {self.directory_processed_data} |
 | PDB list | {self.directory_pdb_list} |
 | PDB unseen list | {self.directory_unseen_pdb_list} |
+| AF PDB list | {self.directory_af_pdb_list} |
+| AF PDB unseen list | {self.directory_unseen_af_pdb_list} |
 | Output | {self.directory_output} |
 
 ## Runtime

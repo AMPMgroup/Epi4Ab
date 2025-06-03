@@ -33,4 +33,5 @@ plot_network
 
 use_antiberty
 use_token
+use_alphafold
 #### Default: freeze_pretrained is True --> no need in parameters.txt

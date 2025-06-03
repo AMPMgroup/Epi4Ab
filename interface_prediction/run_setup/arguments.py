@@ -19,6 +19,12 @@ def initiate_argument():
     parser.add_argument('directory_unseen_pdb_list',
                         help='path to list of unseen pdb', 
                         nargs='?')
+    parser.add_argument('directory_af_pdb_list',
+                        help='path to list of alpha fold pdb', 
+                        nargs='?')
+    parser.add_argument('directory_unseen_af_pdb_list',
+                        help='path to list of unseen alpha fold pdb', 
+                        nargs='?')
     parser.add_argument('directory_output',
                         help='path to output folder', 
                         nargs='?', default='./output')
@@ -50,6 +56,9 @@ def initiate_argument():
                         action='store_true')
     parser.add_argument('--use_relaxed',
                         help='Using relax to train',
+                        action='store_true')
+    parser.add_argument('--use_alphafold',
+                        help='Using alphafold to train and test',
                         action='store_true')
     parser.add_argument('--num_kfold', metavar='',
                         help='Number of KFOLD',
@@ -90,6 +99,18 @@ def initiate_argument():
     parser.add_argument('--freeze_pretrained',
                         help='While using pre-trained, the pre-trained model can not be updated.',
                         action='store_false')
+    parser.add_argument('--use_seq_ff',
+                        help='Modify the dimension of pretrained by adding feeding forward',
+                        action='store_true')
+    parser.add_argument('--seq_ff_dim',
+                        help='Dimension of 1st Linear in antiberty feed forward',
+                        default=128, type=int)
+    parser.add_argument('--seq_ff_out',
+                        help='Dimension of 2nd Linear in antiberty feed forward',
+                        default=16, type=int)
+    parser.add_argument('--seq_ff_dropout',
+                        help='Dropout in antiberty feed forward',
+                        default=0.2, type=float)
     # Struct of version 1.0.1
     parser.add_argument('--use_struct',
                         help='Using struct data',
