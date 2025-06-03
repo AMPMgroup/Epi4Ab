@@ -133,7 +133,7 @@ def process_training(train_data_raw, train_list_raw, logging, relaxed_train_data
         optimizer = set_optimizer(model, logging)
         train_class.set_model(model, optimizer)
         if logging.train_all == 'with_validation':
-            train_ind, validate_ind = train_test_split(range(len(train_list_raw)), test_size = 0.05, random_state = logging.sklearn_seed)
+            train_ind, validate_ind = train_test_split(range(len(train_list_raw)), test_size = 0.1, random_state = logging.sklearn_seed)
             train_data, train_data_list, validate_data, validate_data_list = subset_train_validate(train_data_raw, train_list_raw, train_ind, validate_ind)
             if logging.use_relaxed:
                 relaxed_train_data, relaxed_train_data_list, relaxed_validate_data, relaxed_validate_data_list = subset_train_validate(relaxed_train_data_raw, relaxed_train_list_raw, train_ind, validate_ind)
@@ -142,7 +142,7 @@ def process_training(train_data_raw, train_list_raw, logging, relaxed_train_data
                 validate_data.extend(relaxed_validate_data)
                 validate_data_list.extend(relaxed_validate_data_list)
             if logging.use_alphafold:
-                af_train_ind, af_validate_ind = train_test_split(range(len(adj_af_train_list)), test_size = 0.05, random_state = logging.sklearn_seed)
+                af_train_ind, af_validate_ind = train_test_split(range(len(adj_af_train_list)), test_size = 0.1, random_state = logging.sklearn_seed)
                 af_train_data, af_train_data_list, af_validate_data, af_validate_data_list = subset_train_validate(af_train_data_raw, adj_af_train_list, af_train_ind, af_validate_ind)
                 train_data.extend(af_train_data)
                 train_data_list.extend(af_train_data_list)
