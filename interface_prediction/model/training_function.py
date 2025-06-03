@@ -116,7 +116,8 @@ def subset_train_validate(train_data_raw, train_list_raw, train_ind, validate_in
     validate_data_list = [train_list_raw[ind] for ind in validate_ind]
     return train_data, train_data_list, validate_data, validate_data_list
 
-def process_training(train_data_raw, train_list_raw, logging, relaxed_train_data_raw=None, relaxed_train_list_raw=None, test_data=None, test_list=None):
+def process_training(train_data_raw, train_list_raw, logging, relaxed_train_data_raw=None, relaxed_train_list_raw=None, 
+                     af_train_data_raw=None, adj_af_train_list=None, test_data=None, test_list=None):
     # torch.autograd.set_detect_anomaly(True)
     loss_record = []
     evaluation_record = []
@@ -140,6 +141,13 @@ def process_training(train_data_raw, train_list_raw, logging, relaxed_train_data
                 train_data_list.extend(relaxed_train_data_list)
                 validate_data.extend(relaxed_validate_data)
                 validate_data_list.extend(relaxed_validate_data_list)
+            if logging.use_alphafold:
+                af_train_ind, af_validate_ind = train_test_split(range(len(adj_af_train_list)), test_size = 0.05, random_state = logging.sklearn_seed)
+                af_train_data, af_train_data_list, af_validate_data, af_validate_data_list = subset_train_validate(af_train_data_raw, adj_af_train_list, af_train_ind, af_validate_ind)
+                train_data.extend(af_train_data)
+                train_data_list.extend(af_train_data_list)
+                validate_data.extend(af_validate_data)
+                validate_data_list.extend(af_validate_data_list)
             loss_record.extend(train_class.epoch_training(train_data, validate_data = validate_data))
             evaluation_record.extend(test_model(model, train_data, train_data_list, logging))
             evaluation_record.extend(test_model(model, validate_data, validate_data_list, logging, testType='validate'))
@@ -175,6 +183,12 @@ def process_training(train_data_raw, train_list_raw, logging, relaxed_train_data
                 train_data_list.extend(relaxed_train_data_list)
                 validate_data.extend(relaxed_validate_data)
                 validate_data_list.extend(relaxed_validate_data_list)
+            if logging.use_alphafold:
+                af_train_data, af_train_data_list, af_validate_data, af_validate_data_list = subset_train_validate(af_train_data_raw, adj_af_train_list, af_train_ind, af_validate_ind)
+                train_data.extend(af_train_data)
+                train_data_list.extend(af_train_data_list)
+                validate_data.extend(af_validate_data)
+                validate_data_list.extend(af_validate_data_list)
             model = choose_model(logging).to(logging.device)
             optimizer = set_optimizer(model, logging)
             train_class.set_model(model, optimizer)

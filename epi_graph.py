@@ -42,7 +42,7 @@ data_start_time = datetime.now()
 if model_logging.train_all == 'yes':
     train_data, train_list = process_data(model_logging)
 else:
-    train_data, train_list, relaxed_train_data, relaxed_train_list, test_data, test_list = process_data(model_logging)
+    train_data, train_list, relaxed_train_data, relaxed_train_list, af_train_data, adj_af_train_list, test_data, test_list = process_data(model_logging)
 model_logging.data_time = datetime.now() - data_start_time
 
 print('Start training')
@@ -51,7 +51,8 @@ train_start_time = datetime.now()
 if model_logging.train_all == 'yes':
     train_loss_record, evaluation_record = process_training(train_data, train_list, model_logging)
 else:
-    train_loss_record, evaluation_record = process_training(train_data, train_list, model_logging, relaxed_train_data, relaxed_train_list, test_data, test_list)
+    train_loss_record, evaluation_record = process_training(train_data, train_list, model_logging, relaxed_train_data, relaxed_train_list, 
+                                                            af_train_data, adj_af_train_list, test_data, test_list)
 model_logging.train_time = datetime.now() - train_start_time
 
 result_start_time = datetime.now()

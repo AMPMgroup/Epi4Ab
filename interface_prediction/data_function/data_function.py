@@ -49,113 +49,113 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
         aa_tokenizer = AATokenizer(featureNameDict, logging.ab_onehot_vh_columns, logging.ab_onehot_vl_columns)
 
     for pdbId in tqdm(pdbList, desc=f'Processing {batchType} data', unit='pdbId'):
-        try:
-            if logging.use_relaxed & (pdbId[-3:] == '_re'): # Get data based on relaxed or bound
-            #     pdb_folder = os.path.join(logging.directory_data, pdbId[:-3])
-                label_folder = os.path.join(logging.directory_data, pdbId[:-3])
-                feature_folder = os.path.join(logging.directory_processed_data, pdbId[:-3])
-            else:
-            #     pdb_folder = os.path.join(logging.directory_data, pdbId)
-                label_folder = os.path.join(logging.directory_data, pdbId)
-                feature_folder = os.path.join(logging.directory_processed_data, pdbId)
-            # featureData = pd.read_parquet(os.path.join(feature_folder, logging.feature_file))
-            pdb_folder = os.path.join(logging.directory_data, pdbId)
-            featureData = pd.read_parquet(os.path.join(pdb_folder, logging.feature_file))
-            # featureData = featureData[featureData.chainType == 'antigen']
-            assert not featureData.empty, f'Feature of pdb {pdbId} is empty.'
-            edgeIndex = pd.read_parquet(os.path.join(pdb_folder, logging.edge_index_file))
-            assert not edgeIndex.empty, f'Edge index of pdb {pdbId} is empty.'
-            edgeAttribute = pd.read_parquet(os.path.join(pdb_folder, logging.edge_attribute_file)).astype(float)
-            assert not edgeAttribute.empty, f'Edge attribute distance of pdb {pdbId} is empty.'
-            edgeCharge = pd.read_parquet(os.path.join(pdb_folder, logging.edge_attribute_charge_file))
-            assert not edgeCharge.empty, f'Edge attribute charge of pdb {pdbId} is empty.'
-            nodeLabel = pd.read_parquet(os.path.join(label_folder, logging.node_label_file)).astype(int)
-            assert ptypes.is_float_dtype(edgeAttribute['dist']), f'Attribute of pdb {pdbId} is not float.'
-            edgeAttribute = edgeAttribute.abs()
+        # try:
+        if logging.use_relaxed & (pdbId[-3:] == '_re'): # Get data based on relaxed or bound
+        #     pdb_folder = os.path.join(logging.directory_data, pdbId[:-3])
+            label_folder = os.path.join(logging.directory_data, pdbId[:-3])
+            process_folder = os.path.join(logging.directory_processed_data, pdbId[:-3])
+        else:
+        #     pdb_folder = os.path.join(logging.directory_data, pdbId)
+            label_folder = os.path.join(logging.directory_data, pdbId)
+            process_folder = os.path.join(logging.directory_processed_data, pdbId)
+        # featureData = pd.read_parquet(os.path.join(process_folder, logging.feature_file))
+        pdb_folder = os.path.join(logging.directory_data, pdbId)
+        featureData = pd.read_parquet(os.path.join(pdb_folder, logging.feature_file))
+        # featureData = featureData[featureData.chainType == 'antigen']
+        assert not featureData.empty, f'Feature of pdb {pdbId} is empty.'
+        edgeIndex = pd.read_parquet(os.path.join(pdb_folder, logging.edge_index_file))
+        assert not edgeIndex.empty, f'Edge index of pdb {pdbId} is empty.'
+        edgeAttribute = pd.read_parquet(os.path.join(pdb_folder, logging.edge_attribute_file)).astype(float)
+        assert not edgeAttribute.empty, f'Edge attribute distance of pdb {pdbId} is empty.'
+        edgeCharge = pd.read_parquet(os.path.join(pdb_folder, logging.edge_attribute_charge_file))
+        assert not edgeCharge.empty, f'Edge attribute charge of pdb {pdbId} is empty.'
+        nodeLabel = pd.read_parquet(os.path.join(label_folder, logging.node_label_file)).astype(int)
+        assert ptypes.is_float_dtype(edgeAttribute['dist']), f'Attribute of pdb {pdbId} is not float.'
+        edgeAttribute = edgeAttribute.abs()
 
-            # Label
-            label = torch.tensor(nodeLabel.isInterface.astype(int).to_numpy().T, dtype=torch.long)
-            # Edge
-            edge = torch.tensor(edgeIndex.to_numpy().T)
-            # Attribute
-            attribute = torch.tensor(edgeAttribute.to_numpy().reshape(-1), dtype = torch.float)
-            attributeCharge = torch.tensor(edgeCharge.to_numpy().reshape(-1), dtype = torch.int)
-            # Filter neighbor
-            if logging.edge_threshold < 10:
-                edge, attribute, attributeCharge = filter_neighbor(edge, attribute, attributeCharge, logging.edge_threshold)
-            attribute = calc_attribute(attribute, attributeCharge)
-            assert not attribute.isnan().any(), f'There is nan in attribute {attribute}'
-            res_id = torch.tensor(featureData.resId.to_numpy(), dtype=torch.long)
+        # Label
+        label = torch.tensor(nodeLabel.isInterface.astype(int).to_numpy().T, dtype=torch.long)
+        # Edge
+        edge = torch.tensor(edgeIndex.to_numpy().T)
+        # Attribute
+        attribute = torch.tensor(edgeAttribute.to_numpy().reshape(-1), dtype = torch.float)
+        attributeCharge = torch.tensor(edgeCharge.to_numpy().reshape(-1), dtype = torch.int)
+        # Filter neighbor
+        if logging.edge_threshold < 10:
+            edge, attribute, attributeCharge = filter_neighbor(edge, attribute, attributeCharge, logging.edge_threshold)
+        attribute = calc_attribute(attribute, attributeCharge)
+        assert not attribute.isnan().any(), f'There is nan in attribute {attribute}'
+        res_id = torch.tensor(featureData.resId.to_numpy(), dtype=torch.long)
 
-            if logging.use_pretrained:
-                with open(os.path.join(feature_folder, 'sequence','antigen_sequence.json'), 'r') as f:
-                    x_seq = json.load(f)['pdb_sequence'].replace('gap','').replace('x','')
-                if logging.freeze_pretrained:
-                    encode_input = pretrained_tokenize(x_seq, return_tensors = 'pt')
-                    output = pretrained_model(**encode_input)
-                    x_seq = output[0].reshape(output[0].shape[1],-1)[1:-1,:].detach()
-                assert x_seq.size(0) == label.size(0), f'{pdbId} has size of x_seq {x_seq.size(0)} different with {label.size(0)}'
-            else:
-                x_seq = torch.tensor(0)
+        if logging.use_pretrained:
+            with open(os.path.join(process_folder, 'sequence','antigen_sequence.json'), 'r') as f:
+                x_seq = json.load(f)['pdb_sequence'].replace('gap','').replace('x','')
+            if logging.freeze_pretrained:
+                encode_input = pretrained_tokenize(x_seq, return_tensors = 'pt')
+                output = pretrained_model(**encode_input)
+                x_seq = output[0].reshape(output[0].shape[1],-1)[1:-1,:].detach()
+            assert x_seq.size(0) == label.size(0), f'{pdbId} has size of x_seq {x_seq.size(0)} different with {label.size(0)}'
+        else:
+            x_seq = torch.tensor(0)
 
-            if logging.ab_feature_input:
-                featureData[logging.ab_continuous_columns_change] = logging.ab_continuous_columns_value
-                featureData[logging.ab_onehot_vh_columns] = logging.ab_onehot_vh_columns_value
-                featureData[logging.ab_onehot_vl_columns] = logging.ab_onehot_vl_columns_value
+        if logging.ab_feature_input:
+            featureData[logging.ab_continuous_columns_change] = logging.ab_continuous_columns_value
+            featureData[logging.ab_onehot_vh_columns] = logging.ab_onehot_vh_columns_value
+            featureData[logging.ab_onehot_vl_columns] = logging.ab_onehot_vl_columns_value
 
-            if logging.use_token:
-                # res_short_list = featureData.resShort.to_list()
-                vh_df = featureData[logging.ab_onehot_vh_columns]
-                vh_fam = vh_df.columns[(vh_df == 1).all()].item()
-                vl_df = featureData[logging.ab_onehot_vl_columns]
-                vl_fam = vl_df.columns[(vl_df == 1).all()].item()
-                feature_token = aa_tokenizer.tokenize_feature(vh_fam, vl_fam).unsqueeze(0)
-            else:
-                feature_token = torch.tensor(0)
+        if logging.use_token:
+            # res_short_list = featureData.resShort.to_list()
+            vh_df = featureData[logging.ab_onehot_vh_columns]
+            vh_fam = vh_df.columns[(vh_df == 1).all()].item()
+            vl_df = featureData[logging.ab_onehot_vl_columns]
+            vl_fam = vl_df.columns[(vl_df == 1).all()].item()
+            feature_token = aa_tokenizer.tokenize_feature(vh_fam, vl_fam).unsqueeze(0)
+        else:
+            feature_token = torch.tensor(0)
 
-            if logging.use_struct:
-                feature_struct = extract_feature(featureData, pdbId, logging)
-                assert not torch.isnan(feature_struct).any(), f'Feature struct of {pdbId} has nan'
-                assert feature_struct.size(dim=0) == label.size(dim=0), f'PDB {pdbId} has mismatch size of feature {feature_struct.size()} vs. label {label.size()}'
-                if logging.softmax_data:
-                    feature_struct = softmax_class(feature_struct)
-                assert feature_struct.size(0) == label.size(0), f'{pdbId} has size of feature_struct {feature_struct.size(0)} different with {label.size(0)}'
-            else:
-                feature_struct = torch.tensor(0)
+        if logging.use_struct:
+            feature_struct = extract_feature(featureData, pdbId, logging)
+            assert not torch.isnan(feature_struct).any(), f'Feature struct of {pdbId} has nan'
+            assert feature_struct.size(dim=0) == label.size(dim=0), f'PDB {pdbId} has mismatch size of feature {feature_struct.size()} vs. label {label.size()}'
+            if logging.softmax_data:
+                feature_struct = softmax_class(feature_struct)
+            assert feature_struct.size(0) == label.size(0), f'{pdbId} has size of feature_struct {feature_struct.size(0)} different with {label.size(0)}'
+        else:
+            feature_struct = torch.tensor(0)
 
-            if logging.use_antiberty:
-                with open(os.path.join(feature_folder, 'sequence','cdr_sequence.json'), 'r') as f:
-                    ab_feature = ab_pretrained_model.embed([json.load(f)['H3_seq']])[0].detach().cpu()
-                ab_feature = torch.cat((ab_feature, torch.zeros(logging.antiberty_max_len - ab_feature.size(0), 512)),0)
-                # ab_feature = torch.cat((ab_feature, torch.zeros(logging.antiberty_max_len - ab_feature.size(0), 512)),0).flatten()
-                # ab_feature = ab_feature.expand(feature_struct.size(0), -1)
-                # feature_struct = torch.cat((feature_struct, ab_feature), dim=1)
-            else:
-                ab_feature = torch.tensor(0)
-            
-            assert edge.size(dim=1) == attribute.size(dim=0), f'PDB {pdbId} has mismatch size of edge {edge.size()} vs. attribute {label.size()}'
+        if logging.use_antiberty:
+            with open(os.path.join(process_folder, 'sequence','cdr_sequence.json'), 'r') as f:
+                ab_feature = ab_pretrained_model.embed([json.load(f)['H3_seq']])[0].detach().cpu()
+            ab_feature = torch.cat((ab_feature, torch.zeros(logging.antiberty_max_len - ab_feature.size(0), 512)),0)
+            # ab_feature = torch.cat((ab_feature, torch.zeros(logging.antiberty_max_len - ab_feature.size(0), 512)),0).flatten()
+            # ab_feature = ab_feature.expand(feature_struct.size(0), -1)
+            # feature_struct = torch.cat((feature_struct, ab_feature), dim=1)
+        else:
+            ab_feature = torch.tensor(0)
+        
+        assert edge.size(dim=1) == attribute.size(dim=0), f'PDB {pdbId} has mismatch size of edge {edge.size()} vs. attribute {label.size()}'
 
-            res_short = featureData.resShort.to_numpy()
-            new_pdb_list.append(pdbId)
-            dataBatch.append(Data(x=feature_struct,
-                                    x_seq=x_seq,
-                                x_ab=ab_feature,
-                                y=label, 
-                                edge_index=edge,
-                                edge_attr=attribute,
-                                feature_token=feature_token,
-                                res_id=res_id,
-                                res_short=res_short,
-                                pdb_id=pdbId,
-                                node_size=torch.tensor([res_id.size(dim=0)])))
-            del feature_struct
-            del label
-            del edge
-            del attribute
-            del attributeCharge
-            del res_id
-        except:
-            error_list.append(pdbId)
+        res_short = featureData.resShort.to_numpy()
+        new_pdb_list.append(pdbId)
+        dataBatch.append(Data(x=feature_struct,
+                                x_seq=x_seq,
+                            x_ab=ab_feature,
+                            y=label, 
+                            edge_index=edge,
+                            edge_attr=attribute,
+                            feature_token=feature_token,
+                            res_id=res_id,
+                            res_short=res_short,
+                            pdb_id=pdbId,
+                            node_size=torch.tensor([res_id.size(dim=0)])))
+        del feature_struct
+        del label
+        del edge
+        del attribute
+        del attributeCharge
+        del res_id
+        # except:
+        #     error_list.append(pdbId)
         
     if error_list:
         assert error_list == [], f'Error PDB while processing data: {error_list}'
@@ -249,6 +249,9 @@ def process_data(logging):
     if logging.train_all == 'yes':
         if logging.use_relaxed:
             pdb_df = pd.concat([pdb_df, pdb_df + '_re'])
+        if logging.use_alphafold:
+            af_pdb_df = pd.read_csv(logging.directory_af_pdb_list)
+            pdb_df = pd.concat([pdb_df, af_pdb_df])
         train_list = pdb_df.to_numpy().flatten()
         train_data, adj_train_list = batch_list(train_list, logging, logging.feature_name_dict, batchType='train', 
                                                 pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model,
@@ -267,8 +270,21 @@ def process_data(logging):
         else:
             adj_relaxed_train_list = None
             relaxed_train_data = None
-        test_list = pd.read_csv(logging.directory_unseen_pdb_list).to_numpy().flatten()
+        test_list = pd.read_csv(logging.directory_unseen_pdb_list)
+
+        if logging.use_alphafold:
+            af_pdb_df = pd.read_csv(logging.directory_af_pdb_list)
+            af_pdb_df = af_pdb_df.to_numpy().flatten()
+            af_train_data, adj_af_train_list = batch_list(af_pdb_df, logging, logging.feature_name_dict, batchType='afpha fold train',
+                                                            pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model,
+                                                            ab_pretrained_model=ab_pretrained_model)
+            af_test_df = pd.read_csv(logging.directory_unseen_af_pdb_list)
+            test_list = pd.concat([test_list, af_test_df])
+        else:
+            af_train_data = None
+            adj_af_train_list = None
+        test_list = test_list.to_numpy().flatten()
         test_data, test_list = batch_list(test_list, logging, logging.feature_name_dict, batchType='test',
                                           pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model,
                                           ab_pretrained_model=ab_pretrained_model)
-        return train_data, adj_train_list, relaxed_train_data, adj_relaxed_train_list, test_data, test_list
+        return train_data, adj_train_list, relaxed_train_data, adj_relaxed_train_list, af_train_data, adj_af_train_list, test_data, test_list

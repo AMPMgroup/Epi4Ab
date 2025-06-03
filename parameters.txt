@@ -16,6 +16,7 @@ use_struct
 use_pretrained
 use_antiberty
 use_token
+<<<<<<< HEAD
 #
 # === BASE model ===
 #use_base_model
@@ -65,3 +66,7 @@ momentum=0.9
 #train_all=with_validation
 #train_all=yes
 plot_network
+=======
+use_alphafold
+#### Default: freeze_pretrained is True --> no need in parameters.txt
+>>>>>>> d9e1fab

@@ -1,0 +1,3 @@
+pdbId
+1ahw_BAC_af
+1fe8_HLA_af
