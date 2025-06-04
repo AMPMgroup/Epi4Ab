@@ -184,11 +184,8 @@ def process_training(train_data_raw, train_list_raw, logging, relaxed_train_data
                 validate_data.extend(relaxed_validate_data)
                 validate_data_list.extend(relaxed_validate_data_list)
             if logging.use_alphafold:
-                af_train_data, af_train_data_list, af_validate_data, af_validate_data_list = subset_train_validate(af_train_data_raw, adj_af_train_list, af_train_ind, af_validate_ind)
-                train_data.extend(af_train_data)
-                train_data_list.extend(af_train_data_list)
-                validate_data.extend(af_validate_data)
-                validate_data_list.extend(af_validate_data_list)
+                train_data.extend(af_train_data_raw)
+                train_data_list.extend(adj_af_train_list)
             model = choose_model(logging).to(logging.device)
             optimizer = set_optimizer(model, logging)
             train_class.set_model(model, optimizer)
