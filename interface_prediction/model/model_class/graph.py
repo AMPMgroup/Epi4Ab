@@ -13,6 +13,7 @@ class GNNNaive(nn.Module):
                  hidden_channel:list,
                  num_layers, 
                  drop_out:list, 
+                 dropout_edge_p,
                  attention_head:list, 
                  filter_size:list,
                  gradient_attribute,
@@ -32,6 +33,7 @@ class GNNNaive(nn.Module):
         '''
         super(GNNNaive, self).__init__()
         self.initial_process = initial_process
+        self.dropout_edge_p = dropout_edge_p
         self.gradient_attribute = gradient_attribute
         self.out_label = out_label
         layers_list = []
@@ -114,9 +116,23 @@ class GNNNaive(nn.Module):
 
         for ind, layer in enumerate(self.layers):
             if (self.use_deep_shallow) & (ind >= self.shallow_layer):
-                x = layer(x, edge_shallow, atb_shallow)
+                edge_index = edge_shallow.clone()
+                edge_attribute = atb_shallow.clone()
             else:
-                x = layer(x, edgeIndex, atb)
+                edge_index = edgeIndex.clone()
+                edge_attribute = atb.clone()
+
+            if self.dropout_edge_p is not None:
+                edge_index, edge_mask = dropout_edge(edge_index, force_undirected=True, p=self.dropout_edge_p)
+                edge_attribute = edge_attribute[edge_mask]
+                x = layer(x, edge_index, edge_attribute)
+            else:
+                x = layer(x, edge_index, edge_attribute)
+
+            # if (self.use_deep_shallow) & (ind >= self.shallow_layer):
+            #     x = layer(x, edge_shallow, atb_shallow)
+            # else:
+            #     x = layer(x, edgeIndex, atb)
             assert not x.isnan().any(), f'There is NaN value after sequential layer {x}'
         if self.use_norm:
             x = self.norm(x)

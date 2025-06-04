@@ -51,6 +51,7 @@ Activation: LeakyReLU
                         logging.hidden_channel,
                         logging.num_layers, 
                         logging.drop_out, 
+                        logging.dropout_edge_p,
                         logging.attention_head, 
                         logging.filter_size,
                         logging.gradient_attribute,
