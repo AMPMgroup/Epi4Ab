@@ -24,6 +24,8 @@ def choose_model(logging):
                                     # logging.reserved_columns,
                                     # logging.continuous_embed_dim,
                                     logging.use_struct,
+                                    logging.use_deep_shallow,
+                                    logging.shallow_cutoff,
                                     logging.initial_process_weight_dict,
                                     logging.device)
     normalizer = Normalizer(logging.block_norm,
@@ -54,7 +56,9 @@ Activation: LeakyReLU
                         logging.gradient_attribute_with_bias,
                         logging.model_block,
                         logging.use_base_model,
-                        normalizer)
+                        normalizer,
+                        logging.use_deep_shallow,
+                        logging.shallow_layer)
     elif logging.model_name == 'GNNResNet':
         logging.model_architecture = '''
 Operators: Cheb - (Block) x num_layers - (out layer)
@@ -82,7 +86,9 @@ Activation: LeakyReLU
                         logging.model_block,
                         logging.use_base_model,
                         logging.gat_concat,
-                        normalizer)
+                        normalizer,
+                        logging.use_deep_shallow,
+                        logging.shallow_layer)
     
     else:
         raise TypeError(f'Model {logging.model_name} is not defined.')

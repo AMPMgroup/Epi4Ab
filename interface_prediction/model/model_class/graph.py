@@ -20,7 +20,8 @@ class GNNNaive(nn.Module):
                  model_block:str,
                  use_base_model:bool,
                  normalizer,
-                 ):
+                 use_deep_shallow,
+                 shallow_layer):
         '''
         Parameters:
             in_feature: input dimension
@@ -36,6 +37,8 @@ class GNNNaive(nn.Module):
         layers_list = []
         num_layers = num_layers + 1
         channel_list = [in_feature] + hidden_channel
+        self.use_deep_shallow = use_deep_shallow
+        self.shallow_layer = shallow_layer
         # self.token_embed = nn.Embedding(token_size, token_dim)
         # self.seq_embed = GCNConv(1024, pretrained_feature_number)
         # self.embed_pretrained = embed_pretrained
@@ -105,10 +108,15 @@ class GNNNaive(nn.Module):
             atb = edgeAttribute
         assert not atb.isnan().any(), f'There is NaN value after attribute layer {atb}'
 
-        x = self.initial_process(x_struct, x_seq, x_antiberty, token_seq, node_size)
+        x, shallow_index = self.initial_process(x_struct, x_seq, x_antiberty, token_seq, node_size)
+        if self.use_deep_shallow:
+            edge_shallow, atb_shallow = get_shallow_index(edgeIndex, atb, shallow_index)
 
-        for layer in self.layers:
-            x = layer(x, edgeIndex, atb)
+        for ind, layer in enumerate(self.layers):
+            if (self.use_deep_shallow) & (ind >= self.shallow_layer):
+                x = layer(x, edge_shallow, atb_shallow)
+            else:
+                x = layer(x, edgeIndex, atb)
             assert not x.isnan().any(), f'There is NaN value after sequential layer {x}'
         if self.use_norm:
             x = self.norm(x)
@@ -132,7 +140,9 @@ class GNNResNet(nn.Module):
                  model_block:str,
                  use_base_model:bool,
                  gat_concat:bool,
-                 normalizer):
+                 normalizer,
+                 use_deep_shallow,
+                 shallow_layer):
         '''
         Parameters:
             in_feature: input dimension
@@ -149,6 +159,8 @@ class GNNResNet(nn.Module):
         layers_list = []
         num_layers = num_layers + 1
         channel_list = [in_feature] + hidden_channel
+        self.use_deep_shallow = use_deep_shallow
+        self.shallow_layer = shallow_layer
 
         for i in range(1, num_layers):
             if len(hidden_channel) == 1:
@@ -205,18 +217,33 @@ class GNNResNet(nn.Module):
             atb = edgeAttribute
         assert not atb.isnan().any(), f'There is NaN value after attribute layer {atb}'
 
-        x = self.initial_process(x_struct, x_seq, x_antiberty, token_seq, node_size)
+        x, shallow_index = self.initial_process(x_struct, x_seq, x_antiberty, token_seq, node_size)
+        if self.use_deep_shallow:
+            edge_shallow, atb_shallow = get_shallow_index(edgeIndex, atb, shallow_index)
 
-        for layer in self.layers:
+        for ind, layer in enumerate(self.layers):
+            if (self.use_deep_shallow) & (ind >= self.shallow_layer):
+                edge_index = edge_shallow.clone()
+                edge_attribute = atb_shallow.clone()
+            else:
+                edge_index = edgeIndex.clone()
+                edge_attribute = atb.clone()
+
             if self.dropout_edge_p is not None:
-                edge_index, edge_mask = dropout_edge(edgeIndex, force_undirected=True, p=self.dropout_edge_p)
-                edge_attribute = atb[edge_mask]
+                edge_index, edge_mask = dropout_edge(edge_index, force_undirected=True, p=self.dropout_edge_p)
+                edge_attribute = edge_attribute[edge_mask]
                 x = layer(x, edge_index, edge_attribute)
             else:
-                x = layer(x, edgeIndex, atb)
+                x = layer(x, edge_index, edge_attribute)
             assert not x.isnan().any(), f'There is NaN value after sequential layer {x}'
         if self.use_norm:
             x = self.norm(x)
         out = self.fc_out(x)
         assert not out.isnan().any(), f'There is NaN value after fc_out {out}'
         return out
+    
+def get_shallow_index(edge_index, attribute, shallow_index):
+    src_index = torch.where(torch.isin(edge_index, shallow_index)[0])[0]
+    tgt_index = torch.where(torch.isin(edge_index, shallow_index)[1])[0]
+    edge_shallow_index = torch.unique(torch.cat((src_index, tgt_index)))
+    return edge_index[:,edge_shallow_index], attribute[edge_shallow_index]

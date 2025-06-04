@@ -81,6 +81,12 @@ class ModelLogging:
         self.antiberty_dim = 512
         # Struct
         self.use_struct = args.use_struct
+        self.use_deep_shallow = args.use_deep_shallow
+        self.shallow_layer = args.shallow_layer
+        assert self.shallow_layer >= 0, f'Shallow layer {self.shallow_layer} should not be negative'
+        self.shallow_cutoff = args.shallow_cutoff
+        assert self.shallow_cutoff >= 0, f'Shallow cutoff {self.shallow_cutoff} should not be negative'
+        self.resDepth_index = None
         # graph model
         self.use_base_model = args.use_base_model
         self.not_include_gat = args.not_include_gat
@@ -216,7 +222,11 @@ Code version: {self.code_version}
             message += f'''
 | Pre-trained model name | {self.pretrained_model} |
 | Pre-trained dim | {self.pretrained_dim} |
-| Freeze pre-trained | {self.freeze_pretrained} |'''
+| Freeze pre-trained | {self.freeze_pretrained} |
+| Use pre-trained feed forward | {self.use_seq_ff} |
+| Pre-trained feed forward dimension | {self.seq_ff_dim} |
+| Pre-trained feed forward output | {self.seq_ff_out} |
+| pre-trained feed forward dropout | {self.seq_ff_dropout} |'''
 
         if self.loss_function == 'mse':
             message += f'''
@@ -270,7 +280,11 @@ Code version: {self.code_version}
         if self.block_norm:
             message += f'''
 | Block norm eps | {self.block_norm_eps} |
-| Block norm momentum | {self.block_norm_momentum} |'''
+| Block norm momentum | {self.block_norm_momentum} |
+| Use Deep & Shallow | {self.use_deep_shallow} |
+| Shallow layer | {self.shallow_layer} |
+| Shallow cut-off | {self.shallow_cutoff} |
+| resDepth index | {self.resDepth_index} |'''
         message += f'''
 
 {self.model_architecture}

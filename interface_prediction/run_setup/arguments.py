@@ -115,6 +115,15 @@ def initiate_argument():
     parser.add_argument('--use_struct',
                         help='Using struct data',
                         action='store_true')
+    parser.add_argument('--use_deep_shallow',
+                        help='Using deep and shallow in training based on resDepth',
+                        action='store_true')
+    parser.add_argument('--shallow_layer',
+                        help='Set starting layer for shallow training, layer index start as 0',
+                        default=0, type=int)
+    parser.add_argument('--shallow_cutoff',
+                        help='Set cutoff for resDepth',
+                        default=2.0, type=float)
     # AntiBERTy
     parser.add_argument('--use_antiberty',
                         help='Using AntiBERTy for H3',

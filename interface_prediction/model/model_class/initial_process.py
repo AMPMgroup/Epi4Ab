@@ -22,6 +22,9 @@ class InitialProcess(nn.Module):
                  vl_token_size,
                  token_dim,
                  use_struct,
+                 use_deep_shallow,
+                 shallow_cutoff,
+                 resDepth_index,
                  initial_process_weight_dict,
                  device):
         super(InitialProcess, self).__init__()
@@ -65,6 +68,9 @@ class InitialProcess(nn.Module):
             self.linear2 = nn.Linear(antiberty_ff_dim, antiberty_ff_out)
         self.use_token = use_token
         self.use_struct = use_struct
+        self.use_deep_shallow = use_deep_shallow
+        self.shallow_cutoff = shallow_cutoff
+        self.resDepth_index = resDepth_index
         self.initial_process_weight_dict = initial_process_weight_dict
         if self.use_token:
             self.vh_token_embed = nn.Embedding(vh_token_size, token_dim)
@@ -96,10 +102,16 @@ class InitialProcess(nn.Module):
             x_seq = None
 
         if self.use_struct:
+            if self.use_deep_shallow:
+                shallow_index = torch.where(x_struct[:,self.resDepth_index]<=self.shallow_cutoff)[0]
+            else:
+                shallow_index = None
             x_struct = x_struct * self.initial_process_weight_dict['struct']
             seq_len = x_struct.size(0)
         else:
             x_struct = None
+            shallow_index = None
+            deep_index = None
         
         if self.use_antiberty:
             x_antiberty = torch.stack(torch.split(x_antiberty, [self.antiberty_max_len]*len(node_size)))
@@ -122,5 +134,5 @@ class InitialProcess(nn.Module):
 
         x_list = [i for i in [x_struct, x_seq, x_antiberty, token_feature] if i is not None]
         x = torch.cat(x_list, dim=1) if len(x_list) > 1 else x_list[0]
-        return x
+        return x, shallow_index
 

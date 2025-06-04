@@ -166,6 +166,9 @@ def read_feature_name(logging):
         feature_name_dict = json.load(f)
     feature_name_dict = feature_name_dict[logging.feature_version]
     logging.continuous_columns = feature_name_dict['Ag_features']['continuous']
+    if logging.use_deep_shallow:
+        assert 'resDepth' in logging.continuous_columns, 'When using Deep & Shallow, resDepth must be in feature.'
+        logging.resDepth_index = logging.continuous_columns.index('resDepth')
     logging.ag_continuous_columns = feature_name_dict['Ag_features']['continuous']
     logging.onehot_columns = feature_name_dict['Ag_features']['onehot']
     logging.ag_onehot_columns = feature_name_dict['Ag_features']['onehot']
