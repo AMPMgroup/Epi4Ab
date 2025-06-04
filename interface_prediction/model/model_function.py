@@ -26,6 +26,7 @@ def choose_model(logging):
                                     logging.use_struct,
                                     logging.use_deep_shallow,
                                     logging.shallow_cutoff,
+                                    logging.resDepth_index,
                                     logging.initial_process_weight_dict,
                                     logging.device)
     normalizer = Normalizer(logging.block_norm,
