@@ -94,7 +94,7 @@ class InitialProcess(nn.Module):
         output = output[0].reshape(output[0].shape[1],-1)[1:-1,:]
         return output
 
-    def forward(self, x_struct, x_seq, x_antiberty, token_seq, node_size):
+    def forward(self, x_struct, x_seq, x_antiberty, ab_padding_mask, token_seq, node_size):
         if self.use_pretrained:
             if not self.freeze_pretrained:
                 if isinstance(x_seq, list):
@@ -142,10 +142,11 @@ class InitialProcess(nn.Module):
                 x = x.permute(1,0,2)
                 x_antiberty = torch.stack(torch.split(x_antiberty, self.antiberty_max_len))
                 x_antiberty = x_antiberty.permute(1,0,2)
-                x = self.mha(x, x_antiberty, x_antiberty)[0].permute(1,0,2)
+                ab_padding_mask = torch.stack(torch.split(ab_padding_mask, self.antiberty_max_len))
+                x = self.mha(x, x_antiberty, x_antiberty, key_padding_mask = ab_padding_mask)[0].permute(1,0,2)
                 x = torch.cat([xs[:ns,:] for xs, ns in zip(x, node_size.tolist())])
             else:
-                x = self.mha(x, x_antiberty, x_antiberty)[0]
+                x = self.mha(x, x_antiberty, x_antiberty, key_padding_mask = ab_padding_mask)[0]
             
         else:
             if self.use_antiberty:

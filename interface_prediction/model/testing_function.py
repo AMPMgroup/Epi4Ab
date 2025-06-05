@@ -9,7 +9,8 @@ from interface_prediction.evaluation_and_plot.networkx import plot_network
 
 def prediction_test(data, modelBuild, device):
     data.to(device)
-    result = modelBuild(data.x, data.x_seq, data.edge_index, data.edge_attr, data.x_ab, data.feature_token, data.node_size)
+    result = modelBuild(data.x, data.x_seq, data.edge_index, data.edge_attr, data.x_ab, 
+                        data.ab_padding_mask, data.feature_token, data.node_size)
     # trueY = data.y == 0
     return result
 
