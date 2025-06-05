@@ -16,7 +16,6 @@ use_struct
 use_pretrained
 use_antiberty
 use_token
-<<<<<<< HEAD
 #
 # === BASE model ===
 #use_base_model
@@ -46,13 +45,13 @@ block_norm=batchnorm
 attribute_weight=0.1735178381204605 -0.05394153669476509 -0.0020570196211338043
 #
 # ===== evaluate =====
-num_layers=5
-drop_out=0 0 0 0 0
-hidden_channel=64 32 16 8 8 
+num_layers=2
+drop_out=0 0
+hidden_channel=8 8 
 num_kfold=3
 filter_size=5
-epoch_number=200
-batch_size=50
+epoch_number=10
+batch_size=2
 loss_function=cross_entropy
 cross_entropy_weight=0.5 1.0 1.0
 attention_head=5
@@ -66,7 +65,6 @@ momentum=0.9
 #train_all=with_validation
 #train_all=yes
 plot_network
-=======
 use_alphafold
+use_mha
 #### Default: freeze_pretrained is True --> no need in parameters.txt
->>>>>>> d9e1fab

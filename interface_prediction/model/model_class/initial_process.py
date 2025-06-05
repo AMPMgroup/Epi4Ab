@@ -26,6 +26,10 @@ class InitialProcess(nn.Module):
                  shallow_cutoff,
                  resDepth_index,
                  initial_process_weight_dict,
+                 use_mha,
+                 mha_head,
+                 max_antigen_len,
+                 in_feature,
                  device):
         super(InitialProcess, self).__init__()
         self.use_pretrained = use_pretrained
@@ -75,6 +79,12 @@ class InitialProcess(nn.Module):
         if self.use_token:
             self.vh_token_embed = nn.Embedding(vh_token_size, token_dim)
             self.vl_token_embed = nn.Embedding(vl_token_size, token_dim)
+        self.use_mha = use_mha
+        if self.use_mha:
+            self.mha = nn.MultiheadAttention(in_feature, mha_head, 
+                                        vdim=antiberty_ff_in, kdim=antiberty_ff_in)
+        self.max_antigen_len = max_antigen_len
+        self.in_feature = in_feature
         self.device = device
 
     def run_pretrained(self, seq):
@@ -112,14 +122,7 @@ class InitialProcess(nn.Module):
             x_struct = None
             shallow_index = None
             deep_index = None
-        
-        if self.use_antiberty:
-            x_antiberty = torch.stack(torch.split(x_antiberty, [self.antiberty_max_len]*len(node_size)))
-            x_antiberty = self.linear2(self.dropout(self.activation(self.linear1(x_antiberty)))).flatten(1)
-            x_antiberty = torch.cat([i.expand(s, -1) for i,s in zip(x_antiberty,node_size)])* self.initial_process_weight_dict['antiberty']
-        else:
-            x_antiberty = None
-        
+
         if self.use_token:
             token_feature = []
             for token, pdb_size in zip(token_seq, node_size):
@@ -129,10 +132,33 @@ class InitialProcess(nn.Module):
             token_feature = torch.cat(token_feature)* self.initial_process_weight_dict['token']
         else:
             token_feature = None
+        
+        if self.use_mha:
+            x_list = [i for i in [x_struct, x_seq, token_feature] if i is not None]
+            x = torch.cat(x_list, dim=1) if len(x_list) > 1 else x_list[0]
+            if len(node_size) != 1:
+                x = torch.stack([torch.cat((ps, torch.zeros(self.max_antigen_len - ns, self.in_feature).to(self.device)),0) 
+                            for ps, ns in zip(torch.split(x, node_size.tolist()), node_size)])
+                x = x.permute(1,0,2)
+                x_antiberty = torch.stack(torch.split(x_antiberty, self.antiberty_max_len))
+                x_antiberty = x_antiberty.permute(1,0,2)
+                x = self.mha(x, x_antiberty, x_antiberty)[0].permute(1,0,2)
+                x = torch.cat([xs[:ns,:] for xs, ns in zip(x, node_size.tolist())])
+            else:
+                x = self.mha(x, x_antiberty, x_antiberty)[0]
+            
+        else:
+            if self.use_antiberty:
+                x_antiberty = torch.stack(torch.split(x_antiberty, [self.antiberty_max_len]*len(node_size)))
+                x_antiberty = self.linear2(self.dropout(self.activation(self.linear1(x_antiberty)))).flatten(1)
+                x_antiberty = torch.cat([i.expand(s, -1) for i,s in zip(x_antiberty,node_size)])* self.initial_process_weight_dict['antiberty']
+            else:
+                x_antiberty = None
 
-        assert (x_seq is not None) | (x_struct is not None) | (token_feature is not None), f'{x_seq}, {x_struct} and {token_feature} cannot be all None.'
+            assert (x_seq is not None) | (x_struct is not None) | (token_feature is not None), f'{x_seq}, {x_struct} and {token_feature} cannot be all None.'
 
-        x_list = [i for i in [x_struct, x_seq, x_antiberty, token_feature] if i is not None]
-        x = torch.cat(x_list, dim=1) if len(x_list) > 1 else x_list[0]
+            x_list = [i for i in [x_struct, x_seq, x_antiberty, token_feature] if i is not None]
+            x = torch.cat(x_list, dim=1) if len(x_list) > 1 else x_list[0]
+        
         return x, shallow_index
 

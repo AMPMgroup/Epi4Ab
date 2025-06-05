@@ -1,2 +1,2 @@
 pdbId
-3be1_HLA_af
+1fe8_HLA_af

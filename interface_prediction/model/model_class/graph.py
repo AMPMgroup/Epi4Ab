@@ -111,6 +111,7 @@ class GNNNaive(nn.Module):
         assert not atb.isnan().any(), f'There is NaN value after attribute layer {atb}'
 
         x, shallow_index = self.initial_process(x_struct, x_seq, x_antiberty, token_seq, node_size)
+        
         if self.use_deep_shallow:
             edge_shallow, atb_shallow = get_shallow_index(edgeIndex, atb, shallow_index)
 

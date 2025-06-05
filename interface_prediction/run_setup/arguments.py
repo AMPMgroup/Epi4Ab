@@ -125,6 +125,15 @@ def initiate_argument():
                         help='Set cutoff for resDepth',
                         default=2.0, type=float)
     # AntiBERTy
+    parser.add_argument('--use_mha',
+                        help='Using Multihead Attention for antiberty',
+                        action='store_true')
+    parser.add_argument('--mha_head',
+                        help='Number of head for MultiheadAttention',
+                        default=2, type=int)
+    parser.add_argument('--max_antigen_len',
+                        help='Max length of antigen',
+                        default=700, type=int)
     parser.add_argument('--use_antiberty',
                         help='Using AntiBERTy for H3',
                         action='store_true')

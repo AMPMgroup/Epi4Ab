@@ -28,6 +28,10 @@ def choose_model(logging):
                                     logging.shallow_cutoff,
                                     logging.resDepth_index,
                                     logging.initial_process_weight_dict,
+                                    logging.use_mha,
+                                    logging.mha_head,
+                                    logging.max_antigen_len,
+                                    logging.in_feature,
                                     logging.device)
     normalizer = Normalizer(logging.block_norm,
                             logging.block_norm_eps,

@@ -154,6 +154,9 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
         del attribute
         del attributeCharge
         del res_id
+        del x_seq
+        del ab_feature
+        del feature_token
         # except:
         #     error_list.append(pdbId)
         
@@ -244,7 +247,8 @@ def process_data(logging):
     if logging.use_antiberty:
         from antiberty import AntiBERTyRunner
         ab_pretrained_model = AntiBERTyRunner()
-        logging.in_feature += logging.antiberty_max_len * logging.antiberty_ff_out
+        if not logging.use_mha:
+            logging.in_feature += logging.antiberty_max_len * logging.antiberty_ff_out
     else:
         ab_pretrained_model = None
     

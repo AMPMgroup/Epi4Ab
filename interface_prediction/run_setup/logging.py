@@ -79,6 +79,9 @@ class ModelLogging:
         self.antiberty_ff_out = args.antiberty_ff_out
         self.antiberty_ff_dropout = args.antiberty_ff_dropout
         self.antiberty_dim = 512
+        self.use_mha = args.use_mha
+        self.mha_head = args.mha_head
+        self.max_antigen_len = args.max_antigen_len
         # Struct
         self.use_struct = args.use_struct
         self.use_deep_shallow = args.use_deep_shallow
@@ -247,6 +250,7 @@ Code version: {self.code_version}
 | Relation type | Communication / (Distance - 2) |'''
 
         message += f'''
+| Use MHA | {self.use_mha} |
 | Use AntiBERTy | {self.use_antiberty} |
 | H3 max length for AntiBERTy | {self.antiberty_max_len} |
 | AntiBERTy feed forward dimension | {self.antiberty_ff_dim} |
