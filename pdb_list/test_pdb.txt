@@ -1,6 +1,0 @@
-pdbId
-1ahw_BAC
-1fe8_HLA
-1h0d_BAC
-7seg_ABD
-7vyt_BCA
