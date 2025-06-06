@@ -30,6 +30,7 @@ class InitialProcess(nn.Module):
                  mha_head,
                  max_antigen_len,
                  in_feature,
+                 mha_num_layers,
                  device):
         super(InitialProcess, self).__init__()
         self.use_pretrained = use_pretrained
@@ -81,8 +82,12 @@ class InitialProcess(nn.Module):
             self.vl_token_embed = nn.Embedding(vl_token_size, token_dim)
         self.use_mha = use_mha
         if self.use_mha:
-            self.mha = nn.MultiheadAttention(in_feature, mha_head, 
-                                        vdim=antiberty_ff_in, kdim=antiberty_ff_in)
+            mha_layers_list = []
+            for i in range(mha_num_layers):
+                mha = nn.MultiheadAttention(in_feature, mha_head, 
+                                            vdim=antiberty_ff_in, kdim=antiberty_ff_in)
+                mha_layers_list.append(mha)
+            self.mha_layers = nn.ModuleList(mha_layers_list)
         self.max_antigen_len = max_antigen_len
         self.in_feature = in_feature
         self.device = device
@@ -136,17 +141,21 @@ class InitialProcess(nn.Module):
         if self.use_mha:
             x_list = [i for i in [x_struct, x_seq, token_feature] if i is not None]
             x = torch.cat(x_list, dim=1) if len(x_list) > 1 else x_list[0]
-            if len(node_size) != 1:
-                x = torch.stack([torch.cat((ps, torch.zeros(self.max_antigen_len - ns, self.in_feature).to(self.device)),0) 
-                            for ps, ns in zip(torch.split(x, node_size.tolist()), node_size)])
-                x = x.permute(1,0,2)
-                x_antiberty = torch.stack(torch.split(x_antiberty, self.antiberty_max_len))
-                x_antiberty = x_antiberty.permute(1,0,2)
-                ab_padding_mask = torch.stack(torch.split(ab_padding_mask, self.antiberty_max_len))
-                x = self.mha(x, x_antiberty, x_antiberty, key_padding_mask = ab_padding_mask)[0].permute(1,0,2)
-                x = torch.cat([xs[:ns,:] for xs, ns in zip(x, node_size.tolist())])
-            else:
-                x = self.mha(x, x_antiberty, x_antiberty, key_padding_mask = ab_padding_mask)[0]
+            # if len(node_size) != 1:
+            x = torch.stack([torch.cat((ps, torch.zeros(self.max_antigen_len - ns, self.in_feature).to(self.device)),0) 
+                        for ps, ns in zip(torch.split(x, node_size.tolist()), node_size)])
+            x_antiberty = torch.stack(torch.split(x_antiberty, self.antiberty_max_len))
+            ab_padding_mask = torch.stack(torch.split(ab_padding_mask, self.antiberty_max_len))
+            # else:
+            #     x = x.unsqueeze(0)
+            #     x_antiberty = x_antiberty.unsqueeze(0)
+            #     ab_padding_mask = ab_padding_mask.unsqueeze(0)
+            x = x.permute(1,0,2)
+            x_antiberty = x_antiberty.permute(1,0,2)
+            for layer in self.mha_layers:
+                x = layer(x, x_antiberty, x_antiberty, key_padding_mask = ab_padding_mask)[0]
+            x = x.permute(1,0,2)
+            x = torch.cat([xs[:ns,:] for xs, ns in zip(x, node_size.tolist())])
             
         else:
             if self.use_antiberty:
@@ -163,3 +172,5 @@ class InitialProcess(nn.Module):
         
         return x, shallow_index
 
+def _get_clones(module, N):
+    return nn.ModuleList([copy.deepcopy(module) for i in range(N)])

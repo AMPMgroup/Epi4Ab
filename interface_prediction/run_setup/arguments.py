@@ -131,6 +131,9 @@ def initiate_argument():
     parser.add_argument('--mha_head',
                         help='Number of head for MultiheadAttention',
                         default=2, type=int)
+    parser.add_argument('--mha_num_layers',
+                        help='Number of layer for MultiheadAttention',
+                        default=1, type=int)
     parser.add_argument('--max_antigen_len',
                         help='Max length of antigen',
                         default=670, type=int)

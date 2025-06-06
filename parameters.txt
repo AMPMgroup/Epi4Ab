@@ -67,4 +67,5 @@ momentum=0.9
 plot_network
 use_alphafold
 use_mha
+mha_num_layers=2
 #### Default: freeze_pretrained is True --> no need in parameters.txt

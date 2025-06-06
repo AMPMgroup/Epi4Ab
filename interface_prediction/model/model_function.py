@@ -32,6 +32,7 @@ def choose_model(logging):
                                     logging.mha_head,
                                     logging.max_antigen_len,
                                     logging.in_feature,
+                                    logging.mha_num_layers,
                                     logging.device)
     normalizer = Normalizer(logging.block_norm,
                             logging.block_norm_eps,
