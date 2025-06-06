@@ -5,6 +5,6 @@ __pycache__
 .rescache
 .ipynb_checkpoints
 .DS_Store
-parameter.txt
+parameters.txt
 .env
 **/pdb_list
