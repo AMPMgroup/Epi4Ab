@@ -81,6 +81,7 @@ class ModelLogging:
         self.antiberty_dim = 512
         self.use_mha = args.use_mha
         self.mha_head = args.mha_head
+        self.mha_dropout = args.mha_dropout
         self.max_antigen_len = args.max_antigen_len
         self.mha_num_layers = args.mha_num_layers
         # Struct
@@ -254,6 +255,7 @@ Code version: {self.code_version}
 | Use MHA | {self.use_mha} |
 | MHA head | {self.mha_head} |
 | MHA number of layers | {self.mha_num_layers} |
+| MHA dropout | {self.mha_dropout} |
 | Max antigen length | {self.max_antigen_len} |
 | Use AntiBERTy | {self.use_antiberty} |
 | H3 max length for AntiBERTy | {self.antiberty_max_len} |

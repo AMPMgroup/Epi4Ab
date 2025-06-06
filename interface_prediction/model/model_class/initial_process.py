@@ -31,6 +31,7 @@ class InitialProcess(nn.Module):
                  max_antigen_len,
                  in_feature,
                  mha_num_layers,
+                 mha_dropout,
                  device):
         super(InitialProcess, self).__init__()
         self.use_pretrained = use_pretrained
@@ -85,7 +86,8 @@ class InitialProcess(nn.Module):
             mha_layers_list = []
             for i in range(mha_num_layers):
                 mha = nn.MultiheadAttention(in_feature, mha_head, 
-                                            vdim=antiberty_ff_in, kdim=antiberty_ff_in)
+                                            vdim=antiberty_ff_in, kdim=antiberty_ff_in,
+                                            dropout = mha_dropout)
                 mha_layers_list.append(mha)
             self.mha_layers = nn.ModuleList(mha_layers_list)
         self.max_antigen_len = max_antigen_len
@@ -171,6 +173,3 @@ class InitialProcess(nn.Module):
             x = torch.cat(x_list, dim=1) if len(x_list) > 1 else x_list[0]
         
         return x, shallow_index
-
-def _get_clones(module, N):
-    return nn.ModuleList([copy.deepcopy(module) for i in range(N)])
