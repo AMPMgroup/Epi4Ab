@@ -133,7 +133,7 @@ def initiate_argument():
                         default=2, type=int)
     parser.add_argument('--max_antigen_len',
                         help='Max length of antigen',
-                        default=1044, type=int)
+                        default=670, type=int)
     parser.add_argument('--use_antiberty',
                         help='Using AntiBERTy for H3',
                         action='store_true')
