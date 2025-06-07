@@ -1,0 +1,73 @@
+print('''------ AMPM Project ------
+*** Training Model ***
+''')
+
+import optuna
+import pandas as pd
+import os
+from datetime import datetime
+
+print('Importing script')
+import_script_start = datetime.now()
+from interface_prediction.run_setup.logging import ModelLogging
+from interface_prediction.run_setup.set_up import create_output_folder
+from interface_prediction.run_setup.arguments import initiate_argument
+from interface_prediction.data_function.data_function import process_data
+from optuna_utils.objective import Objective
+import_script_time = datetime.now() - import_script_start
+print(f'Import necessary library: {import_script_time}')
+
+prepare_start_time = datetime.now()
+args = initiate_argument()
+# Prepare folder
+
+if os.path.isdir(args.directory_output) == False:
+    os.mkdir(args.directory_output)
+
+model_logging = ModelLogging(args)
+setup_logging_time = datetime.now() - prepare_start_time
+print(f'Set up logging: {setup_logging_time}')
+
+folder_name = str(model_logging.run_date) + '_' + model_logging.model_name
+output_folder = create_output_folder(folder_name, model_logging.directory_output)
+model_logging.directory_output_folder = output_folder
+test_record_folder = os.path.join(output_folder,'test_record')
+os.mkdir(test_record_folder)
+model_logging.directory_test_record = test_record_folder
+print(f'Results are located in {output_folder}.')
+model_logging.prepare_time = datetime.now() - prepare_start_time
+
+data_start_time = datetime.now()
+if model_logging.train_all == 'yes':
+    train_data, train_list = process_data(model_logging)
+else:
+    train_data, train_list, relaxed_train_data, relaxed_train_list, af_train_data, adj_af_train_list, test_data, test_list = process_data(model_logging)
+model_logging.data_time = datetime.now() - data_start_time
+
+print('Start training')
+if __name__ == "__main__":
+    # if model_logging.train_all == 'yes':
+    #     train_loss_record, evaluation_record = process_training(train_data, train_list, model_logging)
+    # else:
+    # train_loss_record, evaluation_record = process_optuna(train_data, train_list, model_logging, relaxed_train_data, relaxed_train_list, 
+    #                                                         af_train_data, adj_af_train_list, test_data, test_list)
+    objective = Objective(train_data, train_list, model_logging, relaxed_train_data, relaxed_train_list, 
+                                                            af_train_data, adj_af_train_list)
+    study = optuna.create_study(direction="maximize") # Maximize validation accuracy
+
+    # Add a pruner to stop unpromising trials early
+    # median_pruner = optuna.pruners.MedianPruner(n_startup_trials=5, n_warmup_steps=5, interval_steps=3)
+    # study = optuna.create_study(direction="maximize", pruner=median_pruner)
+
+    print("Optimizing hyperparameters...")
+    study.optimize(objective, n_trials=10) # Run 50 trials
+
+    print("\nOptimization finished.")
+    print("Number of finished trials:", len(study.trials))
+    print("Best trial:")
+    trial = study.best_trial
+
+    print("  Value: ", trial.value)
+    print("  Params: ")
+    for key, value in trial.params.items():
+        print("    {}: {}".format(key, value))

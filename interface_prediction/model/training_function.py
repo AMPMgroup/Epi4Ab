@@ -27,7 +27,8 @@ class TrainModel:
         self.torch_seed = torch_seed
         self.loss_function_name = loss_function
         self.loss_function = get_loss_function(loss_function, 
-                                               cross_entropy_weight).to(self.device)
+                                               cross_entropy_weight,
+                                               device).to(self.device)
 
     def set_model(self, modelBuild, optimizer):
         self.modelBuild = modelBuild

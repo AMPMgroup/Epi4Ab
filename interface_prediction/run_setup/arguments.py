@@ -211,7 +211,7 @@ def initiate_argument():
     # Loss function
     parser.add_argument('--loss_function', metavar='',
                         help='Select loss function',
-                        default='cross_entropy', type=str, choices=['cross_entropy','mse'])
+                        default='cross_entropy', type=str, choices=['cross_entropy','mse','hce'])
     parser.add_argument('--cross_entropy_weight', metavar='',
                         help='Add weight for cross entropy',
                         default=None, type=float, nargs=3)

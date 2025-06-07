@@ -102,7 +102,7 @@ def test_model(modelBuild, testData, testList, logging, testType:str='train', fo
     record_data = []
     modelBuild.eval()
     tqdm_enum = tqdm(zip(testList, testData), total=len(testList), desc = iter_desc, unit='pdb')
-    if logging.loss_function == 'cross_entropy':
+    if logging.loss_function in ['cross_entropy','hce']:
         for pdb, data in tqdm_enum:
             result = prediction_test(data, modelBuild, logging.device)
             pred_y = result.argmax(dim = 1)

@@ -13,4 +13,5 @@ fastparquet
 tabulate
 networkx==3.2
 antiberty
+optuna
 # scipy==1.13.0

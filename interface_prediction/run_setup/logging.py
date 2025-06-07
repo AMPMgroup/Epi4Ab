@@ -319,6 +319,9 @@ Code version: {self.code_version}
         elif self.loss_function == 'cross_entropy':
             message += f'''
 | Weight of cross entropy | {self.cross_entropy_weight} |'''
+        elif self.loss_function == 'hce':
+            message += f'''
+| Weight of cross entropy | {self.cross_entropy_weight} |'''
 
         message += f'''
 
