@@ -243,25 +243,29 @@ def process_data(logging):
         #     pretrained_para = json.load(f)
     logging.feature_name_dict = read_feature_name(logging)
     if logging.use_pretrained & logging.use_seq_ff:
-        seq_out = logging.seq_ff_out
+        logging.seq_out = logging.seq_ff_out
     else:
-        seq_out = logging.pretrained_dim if logging.use_pretrained else 0
-    logging.in_feature += seq_out
+        logging.seq_out = logging.pretrained_dim if logging.use_pretrained else 0
+    logging.in_feature += logging.seq_out
     logging.in_feature += logging.feature_columns_number
     assert logging.in_feature != 0, 'Dimension of feature could not be 0.'
 
     if logging.use_antiberty:
         from antiberty import AntiBERTyRunner
         ab_pretrained_model = AntiBERTyRunner()
-        if not logging.use_mha:
-            logging.in_feature += logging.antiberty_max_len * logging.antiberty_ff_out
-        else:
+        if logging.use_mha_on == 'all':
             assert logging.in_feature % logging.mha_head == 0,f'''
 Total feature: {logging.in_feature} should be divisible by MHA head {logging.mha_head}:
-- Sequence feature: {seq_out}
+- Sequence feature: {logging.seq_out}
 - Structure feature: {logging.reserved_columns}
 - Token feature: {logging.feature_columns_number - logging.reserved_columns}
 '''
+        elif logging.use_mha_on == 'seq':
+            assert logging.seq_out % logging.mha_head == 0,f'''
+Sequence feature: {logging.seq_out} should be divisible by MHA head {logging.mha_head}
+'''
+        else:
+            logging.in_feature += logging.antiberty_max_len * logging.antiberty_ff_out
     else:
         ab_pretrained_model = None
     

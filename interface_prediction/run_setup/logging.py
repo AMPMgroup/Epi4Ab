@@ -79,7 +79,7 @@ class ModelLogging:
         self.antiberty_ff_out = args.antiberty_ff_out
         self.antiberty_ff_dropout = args.antiberty_ff_dropout
         self.antiberty_dim = 512
-        self.use_mha = args.use_mha
+        self.use_mha_on = args.use_mha_on
         self.mha_head = args.mha_head
         self.mha_dropout = args.mha_dropout
         self.max_antigen_len = args.max_antigen_len
@@ -252,7 +252,7 @@ Code version: {self.code_version}
 | Relation type | Communication / (Distance - 2) |'''
 
         message += f'''
-| Use MHA | {self.use_mha} |
+| Use MHA on | {self.use_mha_on} |
 | MHA head | {self.mha_head} |
 | MHA number of layers | {self.mha_num_layers} |
 | MHA dropout | {self.mha_dropout} |

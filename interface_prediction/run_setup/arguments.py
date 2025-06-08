@@ -125,9 +125,9 @@ def initiate_argument():
                         help='Set cutoff for resDepth',
                         default=2.0, type=float)
     # AntiBERTy
-    parser.add_argument('--use_mha',
+    parser.add_argument('--use_mha_on',
                         help='Using Multihead Attention for antiberty',
-                        action='store_true')
+                        default='no', type=str, choices=['no','all','seq'])
     parser.add_argument('--mha_head',
                         help='Number of head for MultiheadAttention',
                         default=2, type=int)
