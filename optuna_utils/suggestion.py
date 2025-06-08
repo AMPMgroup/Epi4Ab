@@ -29,5 +29,5 @@ def trial_suggestion(trial, logging):
     # 2 f1_score,
     # 3 accuracy_score,
     # 4 roc_auc_score,
-    # 5 average_precision_scorei
+    # 5 average_precision_score
 

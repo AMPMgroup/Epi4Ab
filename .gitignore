@@ -8,3 +8,5 @@ __pycache__
 parameters.txt
 .env
 **/pdb_list
+**/suggestion.py
+**/feature_columns.json

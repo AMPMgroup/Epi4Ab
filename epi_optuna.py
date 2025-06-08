@@ -64,51 +64,84 @@ if __name__ == "__main__":
     print("Optimizing hyperparameters...")
     study.optimize(objective, n_trials=5) # Run 50 trials
 
-    print("\nOptimization finished.")
-    print("Number of finished trials:", len(study.trials))
-    print("Best trial:")
-    trial = study.best_trial
-
-    print("  Value: ", trial.value)
-    print("  Params: ")
-    for key, value in trial.params.items():
-        print("    {}: {}".format(key, value))
-
     output_folder = os.path.join('.','optuna_utils','output')
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     study_output_folder = create_output_folder(str(model_logging.run_date), output_folder)
+
+    complete_trials = 0
+    pruned_trial = 0
+    fail_trial = 0
+    with open(os.path.join(study_output_folder,'optimization_result_all.txt'), 'w') as f:
+        for trial in study.trials:
+            if trial.state == 1:
+                complete_trials += 1
+                trial_state = 'Complete'
+            elif trial.state == 2:
+                pruned_trial += 1
+                trial_state = 'Pruned'
+            else:
+                fail_trial += 1
+                trial_state = 'Fail'
+            f.write(f"Trial {trial.number}: State={trial_state}, Value={trial.value}, Params={trial.params}\n")
+    trial = study.best_trial
+    result_message = f'''\nOptimization finished.
+Number of finished trials:  {len(study.trials)}
+Number of complete trials:  {complete_trials}
+Number of pruned trials:    {pruned_trial}
+Number of fail trials:      {fail_trial}
+Best trial:
+    Value: {trial.value}
+    Params:
+'''
+    # print("\nOptimization finished.")
+    # print("Number of finished trials:", len(study.trials))
+    # print("Best trial:")
+    # trial = study.best_trial
+
+    # print("  Value: ", trial.value)
+    # print("  Params: ")
+    for key, value in trial.params.items():
+        result_message += ("    {}: {}\n".format(key, value))
+    print(result_message)
+    
     print(f'Results are located in {study_output_folder}.')
     
     with open(os.path.join(study_output_folder,'optimization_result.txt'),'w') as f:
-        f.write(f"""Number of finished trials: {len(study.trials)}
-Best trial:
-  Value: {trial.value}
-  Params: \n""")
-        for key, value in trial.params.items():
-            f.write("    {}: {}\n".format(key, value))
-    fig = ov_m.plot_optimization_history(study)
-    plt.tight_layout()
-    plt.savefig(os.path.join(study_output_folder,"optimization_history.png"))
-    plt.close(fig.figure) # Close the figure to free up memory
-
-    fig = ov_m.plot_param_importances(study)
-    plt.tight_layout()
-    plt.savefig(os.path.join(study_output_folder,"param_importances.png"))
-    plt.close(fig.figure) # Close the figure to free up memory
-
-    fig = ov_m.plot_intermediate_values(study)
-    plt.tight_layout()
-    plt.savefig(os.path.join(study_output_folder,"intermediate_values.png"))
-    plt.close(fig.figure) # Close the figure to free up memory
-
-    fig = ov_m.plot_terminator_improvement(study)
-    plt.tight_layout()
-    plt.savefig(os.path.join(study_output_folder,"terminator_improvement.png"))
-    plt.close(fig.figure) # Close the figure to free up memory
-
-    fig = ov_m.plot_parallel_coordinate(study)
-    plt.tight_layout()
-    plt.savefig(os.path.join(study_output_folder,"parallel_coordinate.png"))
-    plt.close(fig.figure) # Close the figure to free up memory
+        f.write(result_message)
     
+    try:
+        fig = ov_m.plot_optimization_history(study,target_name='F1_score')
+        plt.tight_layout()
+        plt.savefig(os.path.join(study_output_folder,"optimization_history.png"))
+        plt.close(fig.figure) # Close the figure to free up memory
+    except:
+        print('optimization_history has error')
+    try:
+        fig = ov_m.plot_param_importances(study,target_name='F1_score')
+        plt.tight_layout()
+        plt.savefig(os.path.join(study_output_folder,"param_importances.png"))
+        plt.close(fig.figure) # Close the figure to free up memory
+    except:
+        print('param_importances has error')
+    try:
+        fig = ov_m.plot_intermediate_values(study,target_name='F1_score')
+        plt.tight_layout()
+        plt.savefig(os.path.join(study_output_folder,"intermediate_values.png"))
+        plt.close(fig.figure) # Close the figure to free up memory
+    except:
+        print('intermediate_values has error')
+    try:
+        fig = ov_m.plot_terminator_improvement(study,target_name='F1_score')
+        plt.tight_layout()
+        plt.savefig(os.path.join(study_output_folder,"terminator_improvement.png"))
+        plt.close(fig.figure) # Close the figure to free up memory
+    except:
+        print('terminator_improvement has error')
+    try:
+        fig = ov_m.plot_parallel_coordinate(study,target_name='F1_score')
+        plt.tight_layout()
+        plt.savefig(os.path.join(study_output_folder,"parallel_coordinate.png"))
+        plt.close(fig.figure) # Close the figure to free up memory
+    except:
+        print('parallel_coordinate has error')
