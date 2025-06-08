@@ -6,6 +6,8 @@ import optuna
 import pandas as pd
 import os
 from datetime import datetime
+import matplotlib.pyplot as plt
+import optuna.visualization.matplotlib as ov_m
 
 print('Importing script')
 import_script_start = datetime.now()
@@ -34,7 +36,7 @@ model_logging.directory_output_folder = output_folder
 test_record_folder = os.path.join(output_folder,'test_record')
 os.mkdir(test_record_folder)
 model_logging.directory_test_record = test_record_folder
-print(f'Results are located in {output_folder}.')
+# print(f'Results are located in {output_folder}.')
 model_logging.prepare_time = datetime.now() - prepare_start_time
 
 data_start_time = datetime.now()
@@ -71,3 +73,42 @@ if __name__ == "__main__":
     print("  Params: ")
     for key, value in trial.params.items():
         print("    {}: {}".format(key, value))
+
+    output_folder = os.path.join('.','optuna_utils','output')
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    study_output_folder = create_output_folder(str(model_logging.run_date), output_folder)
+    print(f'Results are located in {study_output_folder}.')
+    
+    with open(os.path.join(study_output_folder,'optimization_result.txt'),'w') as f:
+        f.write(f"""Number of finished trials: {len(study.trials)}
+Best trial:
+  Value: {trial.value}
+  Params: \n""")
+        for key, value in trial.params.items():
+            f.write("    {}: {}\n".format(key, value))
+    fig = ov_m.plot_optimization_history(study)
+    plt.tight_layout()
+    plt.savefig(os.path.join(study_output_folder,"optimization_history.png"))
+    plt.close(fig.figure) # Close the figure to free up memory
+
+    fig = ov_m.plot_param_importances(study)
+    plt.tight_layout()
+    plt.savefig(os.path.join(study_output_folder,"param_importances.png"))
+    plt.close(fig.figure) # Close the figure to free up memory
+
+    fig = ov_m.plot_intermediate_values(study)
+    plt.tight_layout()
+    plt.savefig(os.path.join(study_output_folder,"intermediate_values.png"))
+    plt.close(fig.figure) # Close the figure to free up memory
+
+    fig = ov_m.plot_terminator_improvement(study)
+    plt.tight_layout()
+    plt.savefig(os.path.join(study_output_folder,"terminator_improvement.png"))
+    plt.close(fig.figure) # Close the figure to free up memory
+
+    fig = ov_m.plot_parallel_coordinate(study)
+    plt.tight_layout()
+    plt.savefig(os.path.join(study_output_folder,"parallel_coordinate.png"))
+    plt.close(fig.figure) # Close the figure to free up memory
+    
