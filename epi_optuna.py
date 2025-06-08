@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # study = optuna.create_study(direction="maximize", pruner=median_pruner)
 
     print("Optimizing hyperparameters...")
-    study.optimize(objective, n_trials=10) # Run 50 trials
+    study.optimize(objective, n_trials=5) # Run 50 trials
 
     print("\nOptimization finished.")
     print("Number of finished trials:", len(study.trials))
