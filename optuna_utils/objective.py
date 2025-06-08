@@ -73,9 +73,9 @@ class Objective:
                     record_list = record_test(data.y, pred_y, soft_y)
                     record_data += record_list[self.logging.target_metric]
             evaluation_result = record_data / len(validate_data_list)
-            # trial.report(evaluation_result, epoch)
+            trial.report(evaluation_result, epoch)
 
-            # if trial.should_prune():
-            #     raise optuna.exceptions.TrialPruned()
+            if trial.should_prune():
+                raise optuna.exceptions.TrialPruned()
         return evaluation_result
 

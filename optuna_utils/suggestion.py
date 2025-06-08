@@ -16,6 +16,10 @@ def trial_suggestion(trial, logging):
     logging.loss_function = trial.suggest_categorical('loss_function', ['cross_entropy', 'hce'])
     logging.shallow_layer = logging.num_layers - trial.suggest_int('shallow_layer_diff',1,logging.num_layers-1) 
     logging.shallow_cutoff = trial.suggest_float('shallow_cutoff', 1.5, 4.0 , step=0.1) 
+    bond_att_weight = trial.suggest_uniform('bond_att_weight', -2, 2)
+    lj_att_weight = trial.suggest_uniform('lj_att_weight', -2, 2)
+    charge_att_weight = trial.suggest_uniform('charge_att_weight', -2, 2)
+    logging.attribute_weight = [bond_att_weight, lj_att_weight, charge_att_weight]
     for i in range(logging.num_layers):
         hidden_channel = trial.suggest_int(f'hidden_channel_{i}', 32, 128, step=32) 
         logging.hidden_channel.append(hidden_channel)
