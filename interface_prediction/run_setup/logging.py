@@ -180,6 +180,9 @@ class ModelLogging:
         self.train_time = None
         self.prepare_time = None
         self.result_time = None
+        # Optuna
+        self.optuna_objective=args.optuna_objective
+        self.optuna_target_metric=args.optuna_target_metric
 
     def __iter__(self):
         for attr, value in self.__dict__.items():
@@ -386,10 +389,15 @@ Code version: {self.code_version}
         if not self.dont_save_model:
             message += f'''
 | State dictionary | {not self.save_not_as_statedict} |'''
+        
             
             with open(os.path.join(self.directory_output_folder, 'log.json'), 'w') as file:
                 json.dump(dict(self), file)
 
+        message += f'''
+| Optuna target region | {self.optuna_objective} |
+| Optuna target metric | {self.optuna_target_metric} |'''
+        
         with open(os.path.join(self.directory_output_folder,'log.md'), 'w') as f:
             f.write(message)
 

@@ -55,7 +55,11 @@ if __name__ == "__main__":
     #                                                         af_train_data, adj_af_train_list, test_data, test_list)
     objective = Objective(train_data, train_list, model_logging, relaxed_train_data, relaxed_train_list, 
                                                             af_train_data, adj_af_train_list)
-    study = optuna.create_study(direction="maximize") # Maximize validation accuracy
+    if model_logging.optuna_objective == 'loss':
+        direction = 'minimize'
+    else:
+        direction = 'maximize'
+    study = optuna.create_study(direction=direction) 
 
     # Add a pruner to stop unpromising trials early
     # median_pruner = optuna.pruners.MedianPruner(n_startup_trials=5, n_warmup_steps=5, interval_steps=3)

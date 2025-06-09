@@ -25,8 +25,8 @@ def trial_suggestion(trial, logging):
         logging.hidden_channel.append(hidden_channel)
         drop_out = trial.suggest_float(f'drop_out_{i}', 0, 0.5, step=0.1) 
         logging.drop_out.append(drop_out)
-    logging.target_region = 'cips'
-    logging.target_metric = 2
+    # logging.optuna_target_region = 'cips'
+    # logging.optuna_target_metric = 2
     
     # 0 recall_score
     # 1 precision_score,

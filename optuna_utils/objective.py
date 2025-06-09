@@ -53,26 +53,30 @@ class Objective:
         for epoch in range(self.logging.epoch_number):
             info_list = [epoch + 1]
             train_loss = train_class.train_model(train_data, info_list)
-            # validate_loss = train_class.validate_model(validate_data, info_list)
+            validate_loss = train_class.validate_model(validate_data, info_list)
             train_record.extend(train_loss)
             record_data = 0
             model.eval()
-            for pdb, data in zip(validate_data_list, validate_data):
-                result = prediction_test(data, model, self.logging.device)
-                pred_y = result.argmax(dim = 1)
-                soft_y = F.softmax(result, dim=1)
+            if self.optuna_objective == 'loss':
+                evaluation_result = validate_loss - train_loss
+            else:
+                for pdb, data in zip(validate_data_list, validate_data):
+                    result = prediction_test(data, model, self.logging.device)
+                    pred_y = result.argmax(dim = 1)
+                    soft_y = F.softmax(result, dim=1)
 
-                assert not data.y.isnan().any(), f'There is NaN value of pdb "{pdb}" in true Y {data.y}'
-                assert not pred_y.isnan().any(), f'There is NaN value of pdb "{pdb}" in pred Y {pred_y}'
-                assert not soft_y.isnan().any(), f'There is NaN value of pdb "{pdb}" in softmax Y {soft_y}'
-                
-                if self.logging.target_region == 'cips':
-                    cips_record_list = record_test(data.y, pred_y, cips_evaluate = True )
-                    record_data += cips_record_list[self.logging.target_metric]
-                else:
-                    record_list = record_test(data.y, pred_y, soft_y)
-                    record_data += record_list[self.logging.target_metric]
-            evaluation_result = record_data / len(validate_data_list)
+                    assert not data.y.isnan().any(), f'There is NaN value of pdb "{pdb}" in true Y {data.y}'
+                    assert not pred_y.isnan().any(), f'There is NaN value of pdb "{pdb}" in pred Y {pred_y}'
+                    assert not soft_y.isnan().any(), f'There is NaN value of pdb "{pdb}" in softmax Y {soft_y}'
+                    
+                    if self.logging.optuna_objective == 'cips':
+                        cips_record_list = record_test(data.y, pred_y, cips_evaluate = True )
+                        record_data += cips_record_list[self.logging.optuna_target_metric]
+                    else:
+                        record_list = record_test(data.y, pred_y, soft_y)
+                        record_data += record_list[self.logging.optuna_target_metric]
+            
+                evaluation_result = record_data / len(validate_data_list)
             trial.report(evaluation_result, epoch)
 
             if trial.should_prune():

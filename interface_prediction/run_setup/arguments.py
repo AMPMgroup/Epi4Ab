@@ -282,5 +282,18 @@ def initiate_argument():
     parser.add_argument('--plot_network',
                         help='Plot networkx for test PDBs',
                         action='store_true')
-
+    
+    # Optuna
+    parser.add_argument('--optuna_objective', metavar='',
+                        help='Optuna: Target objective',
+                        default='cips', type=str, choices=['cips','all','loss'])
+    parser.add_argument('--optuna_target_metric',
+                        help='''Metric index for objective
+    # 0 recall_score
+    # 1 precision_score,
+    # 2 f1_score,
+    # 3 accuracy_score,
+    # 4 roc_auc_score,
+    # 5 average_precision_score''',
+                        default=2, type=int, choices=[0,1,2,3,4,5])
     return parser.parse_args()
