@@ -12,7 +12,7 @@ class CustomMSELoss(nn.MSELoss):
 class HierarchicalCELoss(nn.Module):
     def __init__(self, cross_entropy_weight, device):
         super().__init__()
-        self.reachability_matrix = torch.tensor([[1,0,1],
+        self.reachability_matrix = torch.tensor([[1,1,1],
                                                  [0,1,0],
                                                  [0,1,1]]).float().to(device)
         self.cross_entropy_weight = torch.tensor(cross_entropy_weight).to(device)
