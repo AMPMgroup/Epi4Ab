@@ -14,7 +14,7 @@ class HierarchicalCELoss(nn.Module):
         super().__init__()
         self.reachability_matrix = torch.tensor([[1,1,1],
                                                  [0,1,0],
-                                                 [0,1,1]]).float().to(device)
+                                                 [1,1,1]]).float().to(device)
         self.cross_entropy_weight = torch.tensor(cross_entropy_weight).to(device)
         self.device = device
         
