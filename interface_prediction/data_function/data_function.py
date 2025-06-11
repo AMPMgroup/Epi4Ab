@@ -244,6 +244,7 @@ def process_data(logging):
     logging.feature_name_dict = read_feature_name(logging)
     if logging.use_pretrained & logging.use_seq_ff:
         logging.seq_out = logging.seq_ff_out
+        assert logging.feature_columns_number >= logging.seq_ff_out, f'Struct feature dim {logging.feature_columns_number} should be greater or equal seq feature {logging.seq_ff_out}'
     else:
         logging.seq_out = logging.pretrained_dim if logging.use_pretrained else 0
     logging.in_feature += logging.seq_out
@@ -261,8 +262,8 @@ Total feature: {logging.in_feature} should be divisible by MHA head {logging.mha
 - Token feature: {logging.feature_columns_number - logging.reserved_columns}
 '''
         elif logging.use_mha_on == 'seq':
-            assert logging.seq_out % logging.mha_head == 0,f'''
-Sequence feature: {logging.seq_out} should be divisible by MHA head {logging.mha_head}
+            assert logging.pretrained_dim % logging.mha_head == 0,f'''
+Sequence feature: {logging.pretrained_dim} should be divisible by MHA head {logging.mha_head}
 '''
         else:
             logging.in_feature += logging.antiberty_max_len * logging.antiberty_ff_out
