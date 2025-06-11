@@ -85,7 +85,7 @@ class InitialProcess(nn.Module):
         if self.use_mha_on == 'all':
             self.query_feature = in_feature
         elif self.use_mha_on == 'seq':
-            self.query_feature =  seq_out
+            self.query_feature =  seq_ff_in
         if self.use_mha_on != 'no':
             mha_layers_list = []
             for i in range(mha_num_layers):
@@ -126,10 +126,9 @@ class InitialProcess(nn.Module):
                     x_seq = torch.cat(temp_seq, dim = 0)
                 else:
                     x_seq = self.run_pretrained(x_seq)
-            if self.use_seq_ff:
+            if (self.use_seq_ff) & (self.use_mha_on != 'seq'):
                 x_seq = self.seq_linear2(self.seq_dropout(self.seq_activation(self.seq_linear1(x_seq))))
             x_seq = x_seq * self.initial_process_weight_dict['pre-trained']
-            seq_len = x_seq.size(0)
         else:
             x_seq = None
 
@@ -139,11 +138,9 @@ class InitialProcess(nn.Module):
             else:
                 shallow_index = None
             x_struct = x_struct * self.initial_process_weight_dict['struct']
-            seq_len = x_struct.size(0)
         else:
             x_struct = None
             shallow_index = None
-            deep_index = None
 
         if self.use_token:
             token_feature = []
@@ -162,6 +159,8 @@ class InitialProcess(nn.Module):
             
         elif self.use_mha_on == 'seq':
             x_seq = self.train_mha(x_seq, x_antiberty, ab_padding_mask, node_size)
+            if self.use_seq_ff:
+                x_seq = self.seq_linear2(self.seq_dropout(self.seq_activation(self.seq_linear1(x_seq))))
             x_list = [i for i in [x_struct, x_seq, token_feature] if i is not None]
             x = torch.cat(x_list, dim=1) if len(x_list) > 1 else x_list[0]
 
