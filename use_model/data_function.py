@@ -45,12 +45,15 @@ def process_data(logging):
     else:
         pretrained_tokenize = None
         pretrained_model = None
-    
+    if logging.use_antiberty:
+        from antiberty import AntiBERTyRunner
+        ab_pretrained_model = AntiBERTyRunner()
         # relaxed_train_list = relaxed_train_df.to_numpy().flatten()
         # relaxed_train_data, adj_relaxed_train_list = batch_list(relaxed_train_list, logging, agDict, GTDict, logging.feature_name_dict, batchType='relaxed train',
         #                                                         pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model)
     pdb_list = pdb_df.to_numpy().flatten()
     test_data, new_pdb_list = batch_list(pdb_list, logging, batchType='test',
-                        pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model)
+                        pretrained_tokenize=pretrained_tokenize, pretrained_model=pretrained_model,
+                        ab_pretrained_model=ab_pretrained_model)
     # test_data = batch_list(pdb_list, logging, agDict, featureNameDict=logging.feature_name_dict, batchType='test')
     return test_data, new_pdb_list

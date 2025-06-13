@@ -69,7 +69,6 @@ Code version: {self.code_version}
 | Variable | Value |
 | --- | --- |
 | Feature version | {self.feature_version} |
-| Combine input | {self.combine_input} |
 | Continuous features | {self.continuous_columns} |
 | One-hot features | {self.onehot_columns} |
 | Amino acid list | {self.amino_acid_list} |'''
@@ -78,10 +77,6 @@ Code version: {self.code_version}
 | Tokenize data | {self.use_token} |
 | Token size | {self.token_size} |
 | Token dimension | {self.token_dim} |'''
-        if self.use_continuous:
-            message += f'''   
-| Embedded continuous feature size | {self.continuous_embed_dim} |
-| Reserved columns size | {self.reserved_columns} |'''
         if self.feature_version != 'v1.0.2':
             message += f'''   
 | Using struct | {self.use_struct} |'''
@@ -89,12 +84,17 @@ Code version: {self.code_version}
         message += f'''
 | Use Region | {self.use_region} |
 | Use Relaxed data | {self.use_relaxed} |
+| Use Alpha Fold data | {self.use_alphafold} |
 | Use pre-trained | {self.use_pretrained} |'''
         if self.use_pretrained:
             message += f'''
 | Pre-trained model name | {self.pretrained_model} |
 | Pre-trained dim | {self.pretrained_dim} |
-| Freeze pre-trained | {self.freeze_pretrained} |'''
+| Freeze pre-trained | {self.freeze_pretrained} |
+| Use pre-trained feed forward | {self.use_seq_ff} |
+| Pre-trained feed forward dimension | {self.seq_ff_dim} |
+| Pre-trained feed forward output | {self.seq_ff_out} |
+| pre-trained feed forward dropout | {self.seq_ff_dropout} |'''
 
         if self.loss_function == 'mse':
             message += f'''
@@ -115,6 +115,16 @@ Code version: {self.code_version}
 | Relation type | Communication / (Distance - 2) |'''
 
         message += f'''
+| Use MHA on | {self.use_mha_on} |
+| MHA head | {self.mha_head} |
+| MHA number of layers | {self.mha_num_layers} |
+| MHA dropout | {self.mha_dropout} |
+| Max antigen length | {self.max_antigen_len} |
+| Use AntiBERTy | {self.use_antiberty} |
+| H3 max length for AntiBERTy | {self.antiberty_max_len} |
+| AntiBERTy feed forward dimension | {self.antiberty_ff_dim} |
+| AntiBERTy feed forward output | {self.antiberty_ff_out} |
+| AntiBERTy feed forward dropout | {self.antiberty_ff_dropout} |
 | Softmax data | {self.softmax_data} |
 | Data normalization before training | {not self.not_normalize_data} |
 | ElliPro label | {'PI' if self.label_from_ellipro_pi else 'Linear'} |
@@ -139,6 +149,16 @@ Code version: {self.code_version}
 | Dropout edge probability | {self.dropout_edge_p} |
 | Data weight in initial process | {self.initial_process_weight_dict} |
 | GAT concat | {self.gat_concat} |
+| Block norm | {self.block_norm} |'''
+        if self.block_norm:
+            message += f'''
+| Block norm eps | {self.block_norm_eps} |
+| Block norm momentum | {self.block_norm_momentum} |
+| Use Deep & Shallow | {self.use_deep_shallow} |
+| Shallow layer | {self.shallow_layer} |
+| Shallow cut-off | {self.shallow_cutoff} |
+| resDepth index | {self.resDepth_index} |'''
+        message += f'''
 
 {self.model_architecture}
 
@@ -160,6 +180,9 @@ Code version: {self.code_version}
             message += f'''
 | Threshold of MSE | {self.mse_threshold} |'''
         elif self.loss_function == 'cross_entropy':
+            message += f'''
+| Weight of cross entropy | {self.cross_entropy_weight} |'''
+        elif self.loss_function == 'hce':
             message += f'''
 | Weight of cross entropy | {self.cross_entropy_weight} |'''
 
