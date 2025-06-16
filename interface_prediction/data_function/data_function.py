@@ -125,10 +125,23 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
 
         if logging.use_antiberty:
             with open(os.path.join(process_folder, 'sequence','cdr_sequence.json'), 'r') as f:
-                ab_feature = ab_pretrained_model.embed([json.load(f)['H3_seq']])[0].detach().cpu()
-            ab_feature = torch.cat((ab_feature, torch.zeros(logging.antiberty_max_len - ab_feature.size(0), 512)),0)
-            ab_padding_mask = torch.cat((torch.zeros(ab_feature.size(0), dtype=torch.bool), 
-                                         torch.ones(logging.antiberty_max_len - ab_feature.size(0), dtype = torch.bool)))
+                cdr_dict = json.load(f)
+            ab_cdr_list = [cdr_dict[f'{cdr_name}_seq'] for cdr_name in logging.antiberty_cdr_list]
+            ab_embed = ab_pretrained_model.embed(ab_cdr_list)
+            ab_feature = []
+            ab_padding_mask = []
+            for ind, cdr_name in enumerate(logging.antiberty_cdr_list):
+                cdr_feature = ab_embed[ind].detach().cpu()
+                cdr_feature = torch.cat((cdr_feature, torch.zeros(logging.antiberty_max_len_dict[cdr_name] - cdr_feature.size(0), 512)),0)
+                cdr_padding_mask = torch.cat((torch.zeros(cdr_feature.size(0), dtype=torch.bool), 
+                                         torch.ones(logging.antiberty_max_len_dict[cdr_name] - cdr_feature.size(0), dtype = torch.bool)))
+                ab_feature.append(cdr_feature)
+                ab_padding_mask.append(cdr_padding_mask)
+            ab_feature = torch.cat(ab_feature)
+            ab_padding_mask = torch.cat(ab_padding_mask)
+            # ab_feature = torch.cat((ab_feature, torch.zeros(logging.antiberty_max_len - ab_feature.size(0), 512)),0)
+            # ab_padding_mask = torch.cat((torch.zeros(ab_feature.size(0), dtype=torch.bool), 
+            #                              torch.ones(logging.antiberty_max_len - ab_feature.size(0), dtype = torch.bool)))
             # ab_feature = torch.cat((ab_feature, torch.zeros(logging.antiberty_max_len - ab_feature.size(0), 512)),0).flatten()
             # ab_feature = ab_feature.expand(feature_struct.size(0), -1)
             # feature_struct = torch.cat((feature_struct, ab_feature), dim=1)

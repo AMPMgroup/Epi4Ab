@@ -121,6 +121,9 @@ Code version: {self.code_version}
 | MHA dropout | {self.mha_dropout} |
 | Max antigen length | {self.max_antigen_len} |
 | Use AntiBERTy | {self.use_antiberty} |
+| CDRs for AntiBERTy | {self.antiberty_cdr_list} |
+| Max length for AntiBERTy | {self.antiberty_max_len} |
+| Max length dict for AntiBERTy | {self.antiberty_max_len_dict} |
 | H3 max length for AntiBERTy | {self.antiberty_max_len} |
 | AntiBERTy feed forward dimension | {self.antiberty_ff_dim} |
 | AntiBERTy feed forward output | {self.antiberty_ff_out} |

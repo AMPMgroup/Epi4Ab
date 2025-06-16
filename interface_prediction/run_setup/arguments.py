@@ -103,13 +103,13 @@ def initiate_argument():
                         help='Modify the dimension of pretrained by adding feeding forward',
                         action='store_true')
     parser.add_argument('--seq_ff_dim',
-                        help='Dimension of 1st Linear in antiberty feed forward',
+                        help='Dimension of 1st Linear in pretrained feed forward',
                         default=128, type=int)
     parser.add_argument('--seq_ff_out',
-                        help='Dimension of 2nd Linear in antiberty feed forward',
+                        help='Dimension of 2nd Linear in pretrained feed forward',
                         default=16, type=int)
     parser.add_argument('--seq_ff_dropout',
-                        help='Dropout in antiberty feed forward',
+                        help='Dropout in pretrained feed forward',
                         default=0.2, type=float)
     # Struct of version 1.0.1
     parser.add_argument('--use_struct',
@@ -143,8 +143,17 @@ def initiate_argument():
     parser.add_argument('--use_antiberty',
                         help='Using AntiBERTy for H3',
                         action='store_true')
-    parser.add_argument('--antiberty_max_len',
+    parser.add_argument('--antiberty_cdr_list',
+                        help='List of CDRs for antiberty',
+                        default=['H3'], type=str, nargs='+', choices=['H3','L1','L3'])
+    parser.add_argument('--antiberty_max_len_H3',
                         help='Max length of H3 used for antiberty',
+                        default=30, type=int)
+    parser.add_argument('--antiberty_max_len_L1',
+                        help='Max length of L1 used for antiberty',
+                        default=20, type=int)
+    parser.add_argument('--antiberty_max_len_L3',
+                        help='Max length of L3 used for antiberty',
                         default=30, type=int)
     parser.add_argument('--antiberty_ff_dim',
                         help='Dimension of 1st Linear in antiberty feed forward',

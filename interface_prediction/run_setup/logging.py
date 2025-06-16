@@ -74,7 +74,11 @@ class ModelLogging:
         self.token_dim = args.token_dim
         # AntiBERTy
         self.use_antiberty = args.use_antiberty
-        self.antiberty_max_len = args.antiberty_max_len
+        self.antiberty_cdr_list = args.antiberty_cdr_list
+        self.antiberty_max_len_dict = {'H3':args.antiberty_max_len_H3,
+                                  'L1':args.antiberty_max_len_L1,
+                                  'L3':args.antiberty_max_len_L3}
+        self.antiberty_max_len = sum([self.antiberty_max_len_dict[cdr_name] for cdr_name in self.antiberty_cdr_list ])
         self.antiberty_ff_dim = args.antiberty_ff_dim
         self.antiberty_ff_out = args.antiberty_ff_out
         self.antiberty_ff_dropout = args.antiberty_ff_dropout
@@ -261,7 +265,9 @@ Code version: {self.code_version}
 | MHA dropout | {self.mha_dropout} |
 | Max antigen length | {self.max_antigen_len} |
 | Use AntiBERTy | {self.use_antiberty} |
-| H3 max length for AntiBERTy | {self.antiberty_max_len} |
+| CDRs for AntiBERTy | {self.antiberty_cdr_list} |
+| Max length for AntiBERTy | {self.antiberty_max_len} |
+| Max length dict for AntiBERTy | {self.antiberty_max_len_dict} |
 | AntiBERTy feed forward dimension | {self.antiberty_ff_dim} |
 | AntiBERTy feed forward output | {self.antiberty_ff_out} |
 | AntiBERTy feed forward dropout | {self.antiberty_ff_dropout} |
