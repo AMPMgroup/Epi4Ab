@@ -227,14 +227,14 @@ class GNNResNet(nn.Module):
         self.use_norm = normalizer.use_norm
         if self.use_norm:
             self.norm = normalizer(channel_list[hidden_channel_ind])
-    def forward(self, x_struct, x_seq, edgeIndex, edgeAttribute, x_antiberty, token_seq, node_size):
+    def forward(self, x_struct, x_seq, edgeIndex, edgeAttribute, x_antiberty, ab_padding_mask, token_seq, node_size):
         if self.gradient_attribute:
             atb = torch.flatten(self.attribute_layer(edgeAttribute)).clamp(0)
         else:
             atb = edgeAttribute
         assert not atb.isnan().any(), f'There is NaN value after attribute layer {atb}'
 
-        x, shallow_index = self.initial_process(x_struct, x_seq, x_antiberty, token_seq, node_size)
+        x, shallow_index = self.initial_process(x_struct, x_seq, x_antiberty, ab_padding_mask, token_seq, node_size)
         if self.use_deep_shallow:
             edge_shallow, atb_shallow = get_shallow_index(edgeIndex, atb, shallow_index)
 
