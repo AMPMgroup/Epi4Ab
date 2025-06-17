@@ -75,9 +75,12 @@ class ModelLogging:
         # AntiBERTy
         self.use_antiberty = args.use_antiberty
         self.antiberty_cdr_list = args.antiberty_cdr_list
-        self.antiberty_max_len_dict = {'H3':args.antiberty_max_len_H3,
-                                  'L1':args.antiberty_max_len_L1,
-                                  'L3':args.antiberty_max_len_L3}
+        self.antiberty_max_len_dict = {'H1':args.antiberty_max_len_H1,
+                                       'H2':args.antiberty_max_len_H2,
+                                       'H3':args.antiberty_max_len_H3,
+                                       'L1':args.antiberty_max_len_L1,
+                                       'L2':args.antiberty_max_len_L2,
+                                       'L3':args.antiberty_max_len_L3}
         self.antiberty_max_len = sum([self.antiberty_max_len_dict[cdr_name] for cdr_name in self.antiberty_cdr_list ])
         self.antiberty_ff_dim = args.antiberty_ff_dim
         self.antiberty_ff_out = args.antiberty_ff_out
