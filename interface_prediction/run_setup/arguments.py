@@ -148,10 +148,10 @@ def initiate_argument():
                         default=['H3'], type=str, nargs='+', choices=['H1','H2','H3','L1','L2','L3'])
     parser.add_argument('--antiberty_max_len_H1',
                         help='Max length of H1 used for antiberty',
-                        default=30, type=int)
+                        default=20, type=int)
     parser.add_argument('--antiberty_max_len_H2',
                         help='Max length of H2 used for antiberty',
-                        default=30, type=int)
+                        default=22, type=int)
     parser.add_argument('--antiberty_max_len_H3',
                         help='Max length of H3 used for antiberty',
                         default=30, type=int)
@@ -160,10 +160,10 @@ def initiate_argument():
                         default=20, type=int)
     parser.add_argument('--antiberty_max_len_L2',
                         help='Max length of L2 used for antiberty',
-                        default=20, type=int)
+                        default=16, type=int)
     parser.add_argument('--antiberty_max_len_L3',
                         help='Max length of L3 used for antiberty',
-                        default=30, type=int)
+                        default=16, type=int)
     parser.add_argument('--antiberty_ff_dim',
                         help='Dimension of 1st Linear in antiberty feed forward',
                         default=128, type=int)
