@@ -4,11 +4,11 @@
 set -o allexport && source .env && set +o allexport
 
 # MODEL_NAME="2024-12-27_GNNNaive_trainALL-FINAL"
-MODEL_NAME="2025-06-13_GNNNaive_1"
+MODEL_NAME="2025-06-17_GNNResNet_2"
 USE_REGION=false
 USE_RELAXED=false
 PLOT_NETWORK=false
-INPUT_AB_FEATURE=false # Use when test same VH/VL Ab family
+INPUT_AB_FEATURE=true # Use when test same VH/VL Ab family
 
 MODEL_FOLDER=$DIRECTORY_OUTPUT/$MODEL_NAME
 PARAMS=""

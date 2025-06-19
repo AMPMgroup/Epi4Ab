@@ -124,9 +124,12 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
             feature_struct = torch.tensor(0)
 
         if logging.use_antiberty:
-            with open(os.path.join(process_folder, 'sequence','cdr_sequence.json'), 'r') as f:
-                cdr_dict = json.load(f)
-            ab_cdr_list = [cdr_dict[f'{cdr_name}_seq'] for cdr_name in logging.antiberty_cdr_list]
+            if logging.ab_feature_input:
+                ab_cdr_list = [logging.ab_input_cdr_seq[f'{cdr_name}_seq'] for cdr_name in logging.antiberty_cdr_list]
+            else:
+                with open(os.path.join(process_folder, 'sequence','cdr_sequence.json'), 'r') as f:
+                    cdr_dict = json.load(f)
+                ab_cdr_list = [cdr_dict[f'{cdr_name}_seq'] for cdr_name in logging.antiberty_cdr_list]
             ab_embed = ab_pretrained_model.embed(ab_cdr_list)
             ab_feature = []
             ab_padding_mask = []

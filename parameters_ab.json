@@ -9,6 +9,14 @@
         "H3_score": -0.20661157024793386,
         "L1_score": 0.10330578512396693
     },
+    "cdr_sequences":{
+        "H1_seq": "AAAAAA",
+        "H2_seq": "AAAAAA",
+        "H3_seq": "AAAAAA",
+        "L1_seq": "AAAAAA",
+        "L2_seq": "AAAAAA",
+        "L3_seq": "AAAAAA"
+    },
     "vh_type": "VH3",
     "vl_type": "VK1"
 }

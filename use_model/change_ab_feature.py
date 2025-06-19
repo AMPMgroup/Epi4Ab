@@ -21,4 +21,5 @@ def extract_ab_input_feature(ab_feature:dict, ex_continuous_columns, ex_onehot_v
     ab_continuous_values = [ab_feature['continuous'][x] for x in ab_continuous_columns]
     ab_vh_values = [1 if x == ab_vh_type else 0 for x in ex_onehot_vh_columns]
     ab_vl_values = [1 if x == ab_vl_type else 0 for x in ex_onehot_vl_columns]
-    return ab_continuous_columns, ab_continuous_values, ab_vh_values, ab_vl_values
+    cdr_seq = ab_feature['cdr_sequences']
+    return ab_continuous_columns, ab_continuous_values, ab_vh_values, ab_vl_values, cdr_seq

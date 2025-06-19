@@ -47,7 +47,7 @@ class UseModelLogging:
         if self.ab_feature_input:
             with open(Path(__file__).parent / '../parameters_ab.json', 'r') as f:
                 self.ab_feature_dict = json.load(f)
-            self.ab_continuous_columns_change, self.ab_continuous_columns_value, self.ab_onehot_vh_columns_value, self.ab_onehot_vl_columns_value = extract_ab_input_feature(self.ab_feature_dict, 
+            self.ab_continuous_columns_change, self.ab_continuous_columns_value, self.ab_onehot_vh_columns_value, self.ab_onehot_vl_columns_value, self.ab_input_cdr_seq = extract_ab_input_feature(self.ab_feature_dict, 
                                                                                                                                                     self.ab_continuous_columns, 
                                                                                                                                                     self.ab_onehot_vh_columns, 
                                                                                                                                                     self.ab_onehot_vl_columns)
@@ -227,6 +227,7 @@ Code version: {self.code_version}
         if self.ab_feature_input:
             message += f'''
 | Continuous  | {self.ab_feature_dict['continuous']} |
+| CDR sequence | {self.ab_feature_dict['cdr_sequences']}
 | VH family | {self.ab_feature_dict['vh_type']} |
 | VH family | {self.ab_feature_dict['vl_type']} |'''
             
