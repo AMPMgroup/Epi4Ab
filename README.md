@@ -1,4 +1,4 @@
-**Epi4Ab: Prediction of conformational epitopes for specific antibody VH/VL families and CDR H3/L1 sequences**
+**Epi4Ab: Prediction of conformational epitopes for specific antibody VH/VL families and CDRs sequences**
 ==============
 Last updating: `2025-03-13`
 
