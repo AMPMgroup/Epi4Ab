@@ -4,7 +4,7 @@
 set -o allexport && source .env && set +o allexport
 
 # MODEL_NAME="2024-12-27_GNNNaive_trainALL-FINAL"
-MODEL_NAME="2025-06-17_GNNResNet_2"
+MODEL_NAME="final_trained_Epi4Ab"
 USE_REGION=false
 USE_RELAXED=false
 PLOT_NETWORK=false

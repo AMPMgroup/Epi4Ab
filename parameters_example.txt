@@ -1,0 +1,61 @@
+# Code version: 2025-06-22
+
+model_name=GNNResNet
+model_block=GNNResNetBlock_Cheb
+feature_version=v1.0.2
+use_struct
+initial_process_struct_weight=1
+#=================================================================================================
+# If using relaxed, file names need to have suffix "_re", e.g. "1AHQ_re.pdb".
+# If using alphafold, file names need to have suffix "_af", e.g. "1AHQ_af.pdb".
+#=================================================================================================
+#use_relaxed
+#use_alphafold
+#
+use_pretrained
+initial_process_pretrained_weight=1
+#=================================================================================================
+# If "pretrained_model" is omitted, protBERT is used as default.
+#=================================================================================================
+pretrained_model=ESM2_t30
+#--
+use_antiberty
+antiberty_cdr_list=H1 H2 H3 L1 L2 L3
+initial_process_antiberty_weight=1
+#--
+use_mha_on=seq
+mha_head=4
+mha_num_layers=6
+max_antigen_len=670
+mha_dropout=0.2
+# === common params ===
+edge_type=dist
+edge_threshold=10
+label_from_ellipro_pi
+block_norm=batchnorm
+#--
+## == nodes/edges ==
+attribute_weight=0.1735178381204605 -0.05394153669476509 -0.0020570196211338043
+# ===== evaluate =====
+num_layers=8
+drop_out=0.2 0.2 0.0 0.3 0.4 0.3 0.0 0.0
+hidden_channel=128 64 96 128 96 96 32 64
+num_kfold=10
+filter_size=5
+epoch_number=2000
+batch_size=44
+# =======
+loss_function=cross_entropy
+cross_entropy_weight=10 35 20
+attention_head=5
+dropout_edge_p=0.2
+#
+optimizer_method=adam
+learning_rate=0.0001
+weight_decay=0.0016
+momentum=0.9
+#
+#===== final training =====
+#train_all=with_validation
+train_all=yes
+plot_network

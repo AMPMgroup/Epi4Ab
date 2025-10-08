@@ -6,9 +6,9 @@ Last updating: `2025-03-13`
 
 ## Set up
 
-In Unix terminal, change directory to `interface_module` folder.
+In Unix terminal, change directory to `Epi4Ab` folder.
 ```bash
-$ cd path/to/interface_module
+$ cd path/to/Epi4Ab
 ```
 
 Create virtual environmnet
@@ -88,4 +88,14 @@ Output of testing includes:
 - Run log:
     - `log.md`: readable running log.
 
+## USE trained model
 
+Trained model from paper is in `final_trained_Epi4Ab` folder. This model can be used by running `run_model.sh`. 
+
+```bash
+# NOTE: before running model, copy folder "final_trained_Epi4Ab" to folder "output"
+$ cd path/to/Epi4Ab
+$ ./run_model.sh
+```
+
+Ab feature can be changed by changing option `INPUT_AB_FEATURE=true` in `run_model.sh` and para. NOTE: this option requires `parameters_ab.json`.
