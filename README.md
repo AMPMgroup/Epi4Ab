@@ -8,27 +8,27 @@ Last updating: `2025-11-26`
 
 In Unix terminal, change directory to `Epi4Ab` folder.
 ```bash
-$ cd path/to/Epi4Ab
+cd path/to/Epi4Ab
 ```
 
 Create virtual environmnet
 ```bash
-$ python -m venv venv
+python -m venv venv
 ```
 
 Run in virtual environment to ensure consistent version of modules.
 ```bash
-$ source venv/bin/activate
+source venv/bin/activate
 ```
 
 Install modules (ignore if already installed).
 ```bash
-$ pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Exit virtual environment using command.
 ```bash
-$ deactivate
+deactivate
 ```
 
 Create `.env` file in `/Epi4Ab` to contain environmental variables.
@@ -89,7 +89,7 @@ cp path/to/1n8z_chainC.pdb ./processed_data/1n8z_BAC/lig.pdb
 For details, please refer to `source_code/run_setup/arguments.py` or type `--help`.
 
 ```bash
-$ ./run_training.sh
+./run_training.sh
 ```
 
 ### Output
@@ -113,7 +113,7 @@ To perform Epi4Ab inference, use `run_inference.sh`:
 `INPUT_AB_FEATURE=false`: Switching to "true" if testing model with different VH/VL and/or CDRs, modifications should be made in `parameters_ab.json`.
 
 ```bash
-$ ./run_inference.sh
+./run_inference.sh
 ```
 
 ### Output
@@ -127,8 +127,8 @@ The trained Epi4Ab model is in `final_trained_Epi4Ab` folder. This model can be 
 **NOTE**: set `FINAL_MODEL_FOLDER="./final_trained_Epi4Ab"` in `.env`
 
 ```bash
-$ cd path/to/Epi4Ab
-$ ./run_inference.sh
+cd path/to/Epi4Ab
+./run_inference.sh
 ```
 
 # REFERENCE
