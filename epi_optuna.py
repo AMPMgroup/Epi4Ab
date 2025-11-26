@@ -1,4 +1,4 @@
-print('''------ AMPM Project ------
+print('''------ Epi4Ab ------
 *** Training Model ***
 ''')
 
@@ -11,10 +11,10 @@ import optuna.visualization.matplotlib as ov_m
 
 print('Importing script')
 import_script_start = datetime.now()
-from interface_prediction.run_setup.logging import ModelLogging
-from interface_prediction.run_setup.set_up import create_output_folder
-from interface_prediction.run_setup.arguments import initiate_argument
-from interface_prediction.data_function.data_function import process_data
+from source_code.run_setup.logging import ModelLogging
+from source_code.run_setup.set_up import create_output_folder
+from source_code.run_setup.arguments import initiate_argument
+from source_code.data_function.data_function import process_data
 from optuna_utils.objective import Objective
 import_script_time = datetime.now() - import_script_start
 print(f'Import necessary library: {import_script_time}')

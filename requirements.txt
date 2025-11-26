@@ -13,5 +13,9 @@ fastparquet
 tabulate
 networkx==3.2
 antiberty
-optuna
+# optuna
 # scipy==1.13.0
+
+biopython==1.83
+pdb2pqr==3.6.2
+MDAnalysis==2.7.0

@@ -1,4 +1,4 @@
-print('''------ AMPM Project ------
+print('''------ Epi4Ab ------
 *** Training Model ***
 ''')
 
@@ -8,13 +8,13 @@ from datetime import datetime
 
 print('Importing script')
 import_script_start = datetime.now()
-from interface_prediction.run_setup.logging import ModelLogging
-from interface_prediction.run_setup.set_up import create_output_folder
-from interface_prediction.run_setup.arguments import initiate_argument
-from interface_prediction.data_function.data_function import process_data
-from interface_prediction.model.training_function import process_training
-from interface_prediction.evaluation_and_plot.result_evaluation import table_mean
-from interface_prediction.evaluation_and_plot.loss import result_loss
+from source_code.run_setup.logging import ModelLogging
+from source_code.run_setup.set_up import create_output_folder
+from source_code.run_setup.arguments import initiate_argument
+from source_code.data_function.data_function import process_data
+from source_code.model.training_function import process_training
+from source_code.evaluation_and_plot.result_evaluation import table_mean
+from source_code.evaluation_and_plot.loss import result_loss
 import_script_time = datetime.now() - import_script_start
 print(f'Import necessary library: {import_script_time}')
 

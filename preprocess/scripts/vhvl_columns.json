@@ -1,0 +1,35 @@
+{
+    "vh_fam":[
+        "VH1",
+        "VH2",
+        "VH3",
+        "VH4",
+        "VH5",
+        "VH6",
+        "VH7",
+        "VH8",
+        "VH9",
+        "VH14",
+        "VH_unk"
+    ],
+    "vl_fam":[
+        "VK1",
+        "VK2",
+        "VK3",
+        "VK4",
+        "VK5",
+        "VK6",
+        "VK8",
+        "VK10",
+        "VK12",
+        "VK13",
+        "VK14",
+        "VK_others",
+        "VLa1",
+        "VLa2",
+        "VLa3",
+        "VLa6",
+        "VLa_others",
+        "VL_unk"
+    ]
+}

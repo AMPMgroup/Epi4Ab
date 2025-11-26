@@ -1,0 +1,20 @@
+ PyMOL(TM) 3.1.6.1 - Incentive Product
+ Copyright (C) Schrodinger, LLC
+ 
+ This Executable Build integrates and extends Open-Source PyMOL.
+ CmdLoad: "" loaded as "mol".
+ Selector: selection "near10A" defined with 63 atoms.
+ Iterate: iterated over 9 atoms.
+ Detected 12 CPU cores.  Enabled multithreaded rendering.
+PyMOL>load /mnt/edward_data/ampm_project/vsc_module/Epi4Ab/output_preprocess/processed_data/1n8z_BAC/lig.pdb, mol
+PyMOL>sele near10A, resi 607 and chain C around 10
+PyMOL>iterate near10A and name CA, print("##",resn,resi,chain,cmd.distance("resi 607 and name CA and chain C","resi %s and name CA and chain %s" %(resi,chain)))
+## SER 580 C 11.599763870239258
+## PRO 590 C 11.128103256225586
+## ILE 591 C 8.721291542053223
+## TRP 592 C 7.91959810256958
+## LYS 593 C 10.39315128326416
+## PRO 603 C 9.404833793640137
+## CYS 604 C 7.120107650756836
+## PRO 605 C 6.515687942504883
+## ILE 606 C 3.796989917755127

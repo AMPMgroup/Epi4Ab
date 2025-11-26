@@ -1,5 +1,5 @@
-from interface_prediction.model.training_function import TrainModel, choose_model, set_optimizer, subset_train_validate
-from interface_prediction.model.testing_function import prediction_test, record_test
+from source_code.model.training_function import TrainModel, choose_model, set_optimizer, subset_train_validate
+from source_code.model.testing_function import prediction_test, record_test
 from sklearn.model_selection import train_test_split
 import torch
 import torch.nn.functional as F
