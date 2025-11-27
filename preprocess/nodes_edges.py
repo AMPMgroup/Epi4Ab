@@ -133,15 +133,9 @@ def tensor_format(pdbId, df_RESprofile):
     # os.system('rm res10A.txt tmp.pml')
 
     # write to csv
-    # df_eIndex.to_csv('./edge_index.txt',index=False)
-    # df_eAttribute.to_csv('./edge_attribute_dist.txt',index=False)  
     df_eAttribute.to_csv(f'./edge_attribute_dist_{args.Catom}.txt',index=False)  
-    # df_eCharge.to_csv('./edge_attribute_charge.txt',index=False) 
 
     # write to parquet
-    # df_eIndex.to_parquet('./edge_index.parquet',engine='fastparquet',index=False)  
-    # df_eAttribute.to_parquet('./edge_attribute_dist.parquet',engine='fastparquet',index=False)  
-    # df_eCharge.to_parquet('./edge_attribute_charge.parquet',engine='fastparquet',index=False) 
 
     df_eIndex.to_parquet(f'./edge_index_{args.Catom}.parquet',engine='fastparquet',index=False)  
     df_eAttribute.to_parquet(f'./edge_attribute_dist_{args.Catom}.parquet',engine='fastparquet',index=False)  
