@@ -79,27 +79,7 @@ cp path/to/1n8z_chainC.pdb ./processed_data/1n8z_BAC/lig.pdb
 - MAFFT is required for sequence alignment.
 - PyMOL is required to create nodes_edges used for graphs
 
-## TRAINING/TESTING
 
-For details of arguments, please refer to `source_code/run_setup/arguments.py` or type `--help`.
-
-```bash
-./run_training.sh
-```
-
-### Output
-
-- Loss result:
-    - `train_loss.png`
-    - `train_loss.parquet`
-- Evaluation:
-    - `*_mean_*.txt`: Table of avarage evaluation values
-    - `*.parquet`
-- Test record: Record of detail prediction of each PDBIDs
-- Run log:
-    - `log.md`: readable running log.
-    - `log.json`: Dictionary type log.
-- `model.pt` only saved when running with `--train_all` argument.
 
 ## INFERENCE
 
