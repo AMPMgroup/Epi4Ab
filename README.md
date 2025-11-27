@@ -58,8 +58,12 @@ FINAL_MODEL_FOLDER="${CURRENT_WORKING_DIRECTORY}/final_trained_Epi4Ab"
 ```
 
 ## PREPROCESS
+```bash
+mkdir ./input
+```
+`pdb_info.csv` (in `Epi4Ab/input`) is required. 
 
-`pdb_info.csv` (in `Epi4Ab/input`) is required as given format, e.g., containing all required columns.
+Please refer `/examples/input/pdb_info.csv`for more details, e.g., containing all required columns.
 
 To preprocess data, execute `run_preprocess.sh`.
 
