@@ -43,8 +43,8 @@ DIRECTORY_NODES_EDGES="${DIRECTORY_PREPROCESS_OUTPUT}/nodes_edges"
 DIRECTORY_METADATA="${DIRECTORY_PREPROCESS_OUTPUT}/metadata.csv"
 
 # In case, re-training Epi4Ab model
-# DIRECTORY_TRAINING_INPUT="${DIRECTORY_INPUT}/train3A.txt"
-# DIRECTORY_TESTING_INPUT="${DIRECTORY_INPUT}/test3A.txt"
+# DIRECTORY_TRAINING_INPUT="${DIRECTORY_INPUT}/train.txt"
+# DIRECTORY_TESTING_INPUT="${DIRECTORY_INPUT}/test.txt"
 # DIRECTORY_TESTING_OUTPUT="${CURRENT_WORKING_DIRECTORY}/output"
 
 # In case using additional AlphaFold models for training/testing
@@ -84,6 +84,32 @@ cp path/to/1n8z_chainC.pdb ./processed_data/1n8z_BAC/lig.pdb
 - PyMOL is required to create nodes_edges used for graphs
 
 
+## TRAINING/TESTING
+
+For details of arguments, please refer to ⁠`source_code/run_setup/arguments.py` ⁠or ⁠`--help`
+
+**NOTE**: Need `node_label_pi.parquet` (annotating true labels, e.g. {0,1,2} for each residue_id) for re-training. Methods can be found in *Tran et al. (2025)* below.
+
+Refer `/examples/output_preprocess/nodes_edges` for more details.
+
+```bash
+./run_training.sh
+```
+
+### Output
+
+-   Loss result:
+    - ⁠ `train_loss.png` ⁠
+    - ⁠ `train_loss.parquet` ⁠
+-   Evaluation:
+    - ⁠ `*_mean_*.txt` ⁠: avarage evaluation values
+    - ⁠ `*.parquet` ⁠
+-   `test record`: detail prediction results of each antigen in `test.txt`
+-   Log files:
+    - ⁠ `log.md`
+    - ⁠ `log.json`
+-   `model.pt `⁠only saved when running with ⁠`--train_all`⁠ argument.
+
 
 ## INFERENCE
 
@@ -96,7 +122,7 @@ To perform epitope inference using Epi4Ab, execute `run_inference.sh`:
 ```
 
 ### Output
-- `test_record`: prediction results of each input antigen.
+- `test_record`: prediction results of each antigen in `user_unseen.txt`.
 - `log.md`: details of used parameters
 
 ## USING trained Epi4Ab model
