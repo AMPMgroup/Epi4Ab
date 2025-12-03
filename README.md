@@ -115,7 +115,7 @@ Refer `/examples/output_preprocess/nodes_edges` for more details.
 
 To perform epitope inference using Epi4Ab, execute `run_inference.sh`:
 
-`INPUT_AB_FEATURE=true`: if users wish to test the model with different VH/VL and/or CDRs, modifications of which should be made in `/Epi4Ab/parameters_ab.json`.
+`INPUT_AB_FEATURE=true`: if users wish to perform quick test with specific VH/VL and/or CDRs for the whole dataset at once, modifications of which should be made in `/Epi4Ab/parameters_ab.json`.
 
 ```bash
 ./run_inference.sh
@@ -141,3 +141,4 @@ cd path/to/Epi4Ab
 If using Epi4Ab, please cite:
 
 Tran ND, Subramani K, Su CTT. Epi4Ab: a data-driven prediction model of conformational epitopes for specific antibody VH/VL families and CDRs sequences. mAbs (2025), 17(1), p.2531227. [doi:10.1080/19420862.2025.2531227](https://doi.org/10.1080/19420862.2025.2531227)
+
