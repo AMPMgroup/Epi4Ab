@@ -138,10 +138,11 @@ def batch_list(pdbList, logging, featureNameDict={}, batchType=None, pretrained_
             ab_feature = []
             ab_padding_mask = []
             for ind, cdr_name in enumerate(logging.antiberty_cdr_list):
+                padding_len = logging.antiberty_max_len_dict[cdr_name] - len(ab_cdr_list[ind])
                 cdr_feature = ab_embed[ind].detach().cpu()
-                cdr_feature = torch.cat((cdr_feature, torch.zeros(logging.antiberty_max_len_dict[cdr_name] - cdr_feature.size(0), 512)),0)
+                cdr_feature = torch.cat((cdr_feature, torch.zeros(padding_len, 512)), 0)
                 cdr_padding_mask = torch.cat((torch.zeros(cdr_feature.size(0), dtype=torch.bool), 
-                                         torch.ones(logging.antiberty_max_len_dict[cdr_name] - cdr_feature.size(0), dtype = torch.bool)))
+                                         torch.ones(padding_len, dtype = torch.bool)))
                 ab_feature.append(cdr_feature)
                 ab_padding_mask.append(cdr_padding_mask)
             ab_feature = torch.cat(ab_feature)
