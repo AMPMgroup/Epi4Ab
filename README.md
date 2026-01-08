@@ -140,5 +140,6 @@ cd path/to/Epi4Ab
 # REFERENCE
 If using Epi4Ab, please cite:
 
-Tran ND, Subramani K, Su CTT. Epi4Ab: a data-driven prediction model of conformational epitopes for specific antibody VH/VL families and CDRs sequences. mAbs (2025), 17(1), p.2531227. [doi:10.1080/19420862.2025.2531227](https://doi.org/10.1080/19420862.2025.2531227)
+Tran ND, Subramani K, Su CTT. Epi4Ab: a data-driven prediction model of conformational epitopes for specific antibody VH/VL families and CDRs sequences. mAbs (2025), 17(1), p.2531227. [doi:10.1080/19420862.2025.2531227](https://doi.org/10.1080/19420862.2025.2531227), under the CC BY-NC licence.
+
 
